@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Settings, ChevronRight, Heart, Crown, Bell, MapPin, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
+import logoWhite from "@/assets/logo-full-white.png";
 
 const menuItems = [
   { label: "Saved Sellers", icon: Heart, badge: "12" },
@@ -39,7 +40,7 @@ export default function Profile() {
 
         {/* Premium Card */}
         <motion.div whileTap={{ scale: 0.98 }}>
-          <Card className="overflow-hidden rounded-2xl border-0 bg-gradient-to-br from-primary to-primary/80">
+          <Card className="overflow-hidden rounded-2xl border-0 bg-gradient-to-br from-primary to-[hsl(var(--brand-dark))]">
             <CardContent className="flex items-center gap-4 p-5">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-foreground/20">
                 <Crown className="h-5 w-5 text-primary-foreground" />
@@ -75,6 +76,11 @@ export default function Profile() {
             </button>
           ))}
         </Card>
+
+        {/* Footer logo */}
+        <div className="flex justify-center pb-4 pt-2 opacity-30">
+          <img src={logoWhite} alt="MadeLocal" className="h-5 invert" />
+        </div>
       </main>
     </div>
   );

@@ -65,6 +65,7 @@ export default {
           DEFAULT: "hsl(var(--live))",
           foreground: "hsl(var(--live-foreground))",
         },
+        "brand-dark": "hsl(var(--brand-dark))",
         premium: {
           DEFAULT: "hsl(var(--premium))",
           foreground: "hsl(var(--premium-foreground))",

@@ -3,6 +3,7 @@ import { SearchBar } from "@/components/discover/SearchBar";
 import { CategoryFilter } from "@/components/discover/CategoryFilter";
 import { SellerCard } from "@/components/discover/SellerCard";
 import { mockSellers } from "@/data/mock-data";
+import logoFull from "@/assets/logo-full.png";
 
 const Index = () => {
   const [search, setSearch] = useState("");
@@ -26,10 +27,8 @@ const Index = () => {
     <div className="min-h-screen pb-20">
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto max-w-lg px-4 pb-3 pt-4">
-          <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">
-            MadeLocal
-          </h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">
+          <img src={logoFull} alt="MadeLocal" className="h-8 object-contain" />
+          <p className="mt-1 text-sm text-muted-foreground">
             Discover food near you
           </p>
           <div className="mt-3">
