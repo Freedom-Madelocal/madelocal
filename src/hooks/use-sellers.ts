@@ -68,16 +68,6 @@ export function useSellers() {
       const typedProfiles = (profiles ?? []) as Profile[];
       if (!typedProfiles.length) return [];
 
-      const sellerIds = typedProfiles.map((p) => p.user_id);
-
-      const { data: listings, error: listingsError } = await supabase
-        .from("listings")
-        .select("*")
-        .in("seller_id", sellerIds);
-
-      if (listingsError) throw listingsError;
-      const typedListings = (listings ?? []) as Listing[];
-
       const { data: categories } = await supabase.from("categories").select("*");
       const typedCategories = (categories ?? []) as Category[];
 
