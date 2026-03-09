@@ -1,10 +1,43 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
-import type { Tables } from "@/types/database";
 
-export type Profile = Tables<"profiles">;
-export type Listing = Tables<"listings">;
-export type Category = Tables<"categories">;
+export interface Profile {
+  address: string | null;
+  avatar_url: string | null;
+  bio: string | null;
+  created_at: string;
+  email: string | null;
+  id: string;
+  latitude: number | null;
+  longitude: number | null;
+  name: string;
+  phone: string | null;
+  role: "buyer" | "seller" | "both";
+  sms_consent: boolean | null;
+  updated_at: string;
+  user_id: string;
+  venmo_link: string | null;
+}
+
+export interface Listing {
+  category_id: string;
+  created_at: string;
+  description: string | null;
+  id: string;
+  image_url: string | null;
+  is_active: boolean | null;
+  price: number | null;
+  seller_id: string;
+  title: string;
+  updated_at: string;
+}
+
+export interface Category {
+  created_at: string;
+  icon: string | null;
+  id: string;
+  name: string;
+}
 
 export interface SellerWithListings extends Profile {
   listings: Listing[];
@@ -15,42 +48,39 @@ export function useSellers() {
   return useQuery({
     queryKey: ["sellers"],
     queryFn: async () => {
-      // Fetch profiles that are sellers
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
         .select("*")
         .in("role", ["seller", "both"]);
 
       if (profilesError) throw profilesError;
-      if (!profiles?.length) return [];
+      const typedProfiles = (profiles ?? []) as Profile[];
+      if (!typedProfiles.length) return [];
 
-      const sellerIds = profiles.map((p) => p.user_id);
+      const sellerIds = typedProfiles.map((p) => p.user_id);
 
-      // Fetch their listings
       const { data: listings, error: listingsError } = await supabase
         .from("listings")
         .select("*")
         .in("seller_id", sellerIds);
 
       if (listingsError) throw listingsError;
+      const typedListings = (listings ?? []) as Listing[];
 
-      // Fetch categories for category names
-      const { data: categories } = await supabase
-        .from("categories")
-        .select("*");
+      const { data: categories } = await supabase.from("categories").select("*");
+      const typedCategories = (categories ?? []) as Category[];
 
-      const categoryMap = new Map(categories?.map((c) => [c.id, c]) ?? []);
+      const categoryMap = new Map(typedCategories.map((c) => [c.id, c]));
       const listingsBySeller = new Map<string, Listing[]>();
-      
-      (listings ?? []).forEach((l) => {
+
+      typedListings.forEach((l) => {
         const existing = listingsBySeller.get(l.seller_id) ?? [];
         existing.push(l);
         listingsBySeller.set(l.seller_id, existing);
       });
 
-      return profiles.map((profile): SellerWithListings => {
+      return typedProfiles.map((profile): SellerWithListings => {
         const sellerListings = listingsBySeller.get(profile.user_id) ?? [];
-        // Get primary category from first listing
         const primaryCatId = sellerListings[0]?.category_id;
         const primaryCat = primaryCatId ? categoryMap.get(primaryCatId) : undefined;
 
@@ -76,22 +106,23 @@ export function useSellerById(userId: string | undefined) {
         .single();
 
       if (error) throw error;
+      const typedProfile = profile as Profile;
 
       const { data: listings } = await supabase
         .from("listings")
         .select("*")
         .eq("seller_id", userId!);
 
-      const { data: categories } = await supabase
-        .from("categories")
-        .select("*");
+      const typedListings = (listings ?? []) as Listing[];
 
-      const categoryMap = new Map(categories?.map((c) => [c.id, c]) ?? []);
+      const { data: categories } = await supabase.from("categories").select("*");
+      const typedCategories = (categories ?? []) as Category[];
+      const categoryMap = new Map(typedCategories.map((c) => [c.id, c]));
 
       return {
-        ...profile,
-        listings: listings ?? [],
-        categoryName: categoryMap.get(listings?.[0]?.category_id ?? "")?.name,
+        ...typedProfile,
+        listings: typedListings,
+        categoryName: categoryMap.get(typedListings[0]?.category_id ?? "")?.name,
       } as SellerWithListings;
     },
   });
@@ -106,7 +137,7 @@ export function useCategories() {
         .select("*")
         .order("name");
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as Category[];
     },
   });
 }
