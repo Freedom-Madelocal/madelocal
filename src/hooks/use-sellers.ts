@@ -12,7 +12,7 @@ export interface Profile {
   longitude: number | null;
   name: string;
   phone: string | null;
-  role: "buyer" | "seller" | "both";
+  role: string | null;
   sms_consent: boolean | null;
   updated_at: string;
   user_id: string;
@@ -48,24 +48,25 @@ export function useSellers() {
   return useQuery({
     queryKey: ["sellers"],
     queryFn: async () => {
+      // Get listings first to find active sellers
+      const { data: allListings, error: listingsError } = await supabase
+        .from("listings")
+        .select("*");
+
+      if (listingsError) throw listingsError;
+      const typedListings = (allListings ?? []) as Listing[];
+      if (!typedListings.length) return [];
+
+      const sellerIds = [...new Set(typedListings.map((l) => l.seller_id))];
+
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
         .select("*")
-        .in("role", ["seller", "both"]);
+        .in("user_id", sellerIds);
 
       if (profilesError) throw profilesError;
       const typedProfiles = (profiles ?? []) as Profile[];
       if (!typedProfiles.length) return [];
-
-      const sellerIds = typedProfiles.map((p) => p.user_id);
-
-      const { data: listings, error: listingsError } = await supabase
-        .from("listings")
-        .select("*")
-        .in("seller_id", sellerIds);
-
-      if (listingsError) throw listingsError;
-      const typedListings = (listings ?? []) as Listing[];
 
       const { data: categories } = await supabase.from("categories").select("*");
       const typedCategories = (categories ?? []) as Category[];
@@ -134,8 +135,7 @@ export function useCategories() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("categories")
-        .select("*")
-        .order("name");
+        .select("*");
       if (error) throw error;
       return (data ?? []) as Category[];
     },
