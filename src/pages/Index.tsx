@@ -2,26 +2,29 @@ import { useState, useMemo } from "react";
 import { SearchBar } from "@/components/discover/SearchBar";
 import { CategoryFilter } from "@/components/discover/CategoryFilter";
 import { SellerCard } from "@/components/discover/SellerCard";
-import { mockSellers } from "@/data/mock-data";
+import { useSellers } from "@/hooks/use-sellers";
 import logoFull from "@/assets/logo-full.png";
 
 const Index = () => {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
+  const { data: sellers = [], isLoading } = useSellers();
 
   const filtered = useMemo(() => {
-    return mockSellers.filter((s) => {
-      const matchesCategory = category === "all" || s.category === category;
+    return sellers.filter((s) => {
+      const matchesCategory =
+        category === "all" ||
+        s.listings.some((l) => l.category_id === category);
       const matchesSearch =
         !search ||
         s.name.toLowerCase().includes(search.toLowerCase()) ||
-        s.tagline.toLowerCase().includes(search.toLowerCase()) ||
-        s.products.some((p) =>
-          p.name.toLowerCase().includes(search.toLowerCase())
+        s.bio?.toLowerCase().includes(search.toLowerCase()) ||
+        s.listings.some((l) =>
+          l.title.toLowerCase().includes(search.toLowerCase())
         );
       return matchesCategory && matchesSearch;
     });
-  }, [search, category]);
+  }, [search, category, sellers]);
 
   return (
     <div className="min-h-screen pb-20">
@@ -42,10 +45,15 @@ const Index = () => {
 
       <main className="mx-auto max-w-lg px-4">
         <div className="grid gap-4 pt-2">
-          {filtered.map((seller, i) => (
+          {isLoading && (
+            <div className="py-16 text-center text-muted-foreground">
+              <p className="text-lg font-medium">Loading sellers...</p>
+            </div>
+          )}
+          {!isLoading && filtered.map((seller, i) => (
             <SellerCard key={seller.id} seller={seller} index={i} />
           ))}
-          {filtered.length === 0 && (
+          {!isLoading && filtered.length === 0 && (
             <div className="py-16 text-center text-muted-foreground">
               <p className="text-lg font-medium">No sellers found</p>
               <p className="mt-1 text-sm">Try adjusting your search or filters</p>

@@ -1,11 +1,11 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  ArrowLeft, BadgeCheck, Heart, MessageCircle, Radio,
-  MapPin, ExternalLink, Navigation, Copy, Check,
+  ArrowLeft, Heart, MessageCircle,
+  MapPin, ExternalLink, Navigation, Copy,
 } from "lucide-react";
 import { useState } from "react";
-import { mockSellers } from "@/data/mock-data";
+import { useSellerById } from "@/hooks/use-sellers";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,9 +14,17 @@ import { toast } from "sonner";
 export default function SellerProfile() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const seller = mockSellers.find((s) => s.id === id);
+  const { data: seller, isLoading } = useSellerById(id);
   const [following, setFollowing] = useState(false);
   const [showContact, setShowContact] = useState(false);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
 
   if (!seller) {
     return (
@@ -25,6 +33,8 @@ export default function SellerProfile() {
       </div>
     );
   }
+
+  const photo = seller.avatar_url || seller.listings.find((l) => l.image_url)?.image_url || "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=300&fit=crop";
 
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -40,7 +50,7 @@ export default function SellerProfile() {
       {/* Hero */}
       <div className="relative">
         <img
-          src={seller.photo}
+          src={photo}
           alt={seller.name}
           className="h-64 w-full object-cover"
         />
@@ -53,15 +63,13 @@ export default function SellerProfile() {
         </button>
 
         <div className="absolute bottom-4 left-4 right-4">
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold text-primary-foreground">{seller.name}</h1>
-            {seller.verified && <BadgeCheck className="h-5 w-5 text-primary-foreground" />}
-          </div>
+          <h1 className="text-2xl font-bold text-primary-foreground">{seller.name}</h1>
           <div className="mt-1 flex items-center gap-2 text-sm text-primary-foreground/80">
-            <MapPin className="h-3.5 w-3.5" />
-            <span>{seller.distance} away</span>
-            {seller.isPremium && (
-              <Badge className="bg-premium text-premium-foreground border-0 text-xs">Premium</Badge>
+            {seller.address && (
+              <>
+                <MapPin className="h-3.5 w-3.5" />
+                <span>{seller.address}</span>
+              </>
             )}
           </div>
         </div>
@@ -82,52 +90,63 @@ export default function SellerProfile() {
             <MessageCircle className="h-4 w-4" />
             Message
           </Button>
-          {seller.isLive && (
-            <Button className="flex-1 rounded-xl bg-live text-live-foreground hover:bg-live/90">
-              <Radio className="h-4 w-4" />
-              Watch Live
-            </Button>
-          )}
         </div>
 
         {/* About */}
-        <section className="py-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            About
-          </h2>
-          <p className="mt-2 text-sm leading-relaxed text-foreground">
-            {seller.bio}
-          </p>
-        </section>
+        {seller.bio && (
+          <section className="py-4">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              About
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-foreground">
+              {seller.bio}
+            </p>
+          </section>
+        )}
 
-        {/* Products */}
-        <section className="py-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Products
-          </h2>
-          <div className="mt-3 space-y-2">
-            {seller.products.map((product) => (
-              <div
-                key={product.name}
-                className="flex items-center justify-between rounded-xl border bg-card p-4"
-              >
-                <div>
-                  <p className="font-medium text-foreground">{product.name}</p>
-                  <p className="text-sm text-muted-foreground">{product.price}</p>
-                </div>
-                <Badge
-                  variant={product.available ? "default" : "secondary"}
-                  className={cn(
-                    "rounded-full",
-                    product.available && "bg-primary/10 text-primary border-0"
-                  )}
+        {/* Listings */}
+        {seller.listings.length > 0 && (
+          <section className="py-4">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              Listings
+            </h2>
+            <div className="mt-3 space-y-2">
+              {seller.listings.map((listing) => (
+                <div
+                  key={listing.id}
+                  className="flex items-center justify-between rounded-xl border bg-card p-4"
                 >
-                  {product.available ? "Available" : "Sold Out"}
-                </Badge>
-              </div>
-            ))}
-          </div>
-        </section>
+                  <div className="flex items-center gap-3">
+                    {listing.image_url && (
+                      <img
+                        src={listing.image_url}
+                        alt={listing.title}
+                        className="h-12 w-12 rounded-lg object-cover"
+                      />
+                    )}
+                    <div>
+                      <p className="font-medium text-foreground">{listing.title}</p>
+                      {listing.price != null && (
+                        <p className="text-sm text-muted-foreground">
+                          ${listing.price.toFixed(2)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <Badge
+                    variant={listing.is_active ? "default" : "secondary"}
+                    className={cn(
+                      "rounded-full",
+                      listing.is_active && "bg-primary/10 text-primary border-0"
+                    )}
+                  >
+                    {listing.is_active ? "Available" : "Sold Out"}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Contact */}
         <section className="pb-8 pt-4">
@@ -152,9 +171,9 @@ export default function SellerProfile() {
                 <Copy className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium">Copy Contact Info</span>
               </button>
-              {seller.venmo && (
+              {seller.venmo_link && (
                 <a
-                  href={`https://venmo.com/${seller.venmo.replace("@", "")}`}
+                  href={seller.venmo_link.startsWith("http") ? seller.venmo_link : `https://venmo.com/${seller.venmo_link.replace("@", "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex w-full items-center gap-3 rounded-xl border bg-card p-4 transition-colors hover:bg-accent"
