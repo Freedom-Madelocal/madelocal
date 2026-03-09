@@ -48,10 +48,21 @@ export function useSellers() {
   return useQuery({
     queryKey: ["sellers"],
     queryFn: async () => {
+      // Get listings first to find active sellers
+      const { data: allListings, error: listingsError } = await supabase
+        .from("listings")
+        .select("*");
+
+      if (listingsError) throw listingsError;
+      const typedListings = (allListings ?? []) as Listing[];
+      if (!typedListings.length) return [];
+
+      const sellerIds = [...new Set(typedListings.map((l) => l.seller_id))];
+
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
         .select("*")
-        .in("role", ["seller", "both"]);
+        .in("user_id", sellerIds);
 
       if (profilesError) throw profilesError;
       const typedProfiles = (profiles ?? []) as Profile[];
