@@ -12,7 +12,7 @@ export interface Profile {
   longitude: number | null;
   name: string;
   phone: string | null;
-  role: "buyer" | "seller" | "both";
+  role: string | null;
   sms_consent: boolean | null;
   updated_at: string;
   user_id: string;
