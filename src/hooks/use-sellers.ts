@@ -135,8 +135,7 @@ export function useCategories() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("categories")
-        .select("*")
-        .order("name");
+        .select("*");
       if (error) throw error;
       return (data ?? []) as Category[];
     },
