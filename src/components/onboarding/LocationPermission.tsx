@@ -11,6 +11,7 @@ interface Props {
   onNext: () => void;
   nearbyCount: number;
   setNearbyCount: (n: number) => void;
+  selectedCategories?: string[];
 }
 
 export default function LocationPermission({ onLocationGranted, onNext, nearbyCount, setNearbyCount }: Props) {
