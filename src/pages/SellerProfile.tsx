@@ -174,13 +174,6 @@ export default function SellerProfile() {
                   <span className="text-sm font-medium">Pay via Venmo</span>
                 </a>
               )}
-              <button
-                onClick={() => toast.success("Opening directions...")}
-                className="flex w-full items-center gap-3 rounded-xl border bg-card p-4 transition-colors hover:bg-accent"
-              >
-                <Navigation className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Get Directions</span>
-              </button>
             </motion.div>
           )}
         </section>
