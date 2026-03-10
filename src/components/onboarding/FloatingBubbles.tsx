@@ -147,8 +147,8 @@ export default function FloatingBubbles({ sellers }: Props) {
             className="absolute pointer-events-auto group"
             style={entered && pos ? { left: pos.x - BUBBLE_RADIUS, top: pos.y - BUBBLE_RADIUS } : undefined}
           >
-            {/* Name tooltip on hover */}
-            <div className="absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-foreground px-3 py-1 text-xs font-medium text-background opacity-0 transition-opacity duration-200 group-hover:opacity-100 shadow-md z-10">
+            {/* Name tooltip on hover - rendered via portal-like fixed positioning */}
+            <div className="absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-foreground px-3 py-1 text-xs font-medium text-background opacity-0 transition-opacity duration-200 group-hover:opacity-100 shadow-md" style={{ zIndex: 9999, overflow: 'visible' }}>
               {displayName}
             </div>
 
