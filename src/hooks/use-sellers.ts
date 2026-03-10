@@ -81,17 +81,15 @@ export function useSellers(userLocation?: { lat: number; lng: number } | null) {
       });
 
       // Try to fetch profiles for enrichment (name, bio, avatar, venmo)
-      let profileMap = new Map<string, Profile>();
+      let profileMap = new Map<string, any>();
       try {
         const { data: profiles } = await supabase.from("profiles").select("*");
         if (profiles?.length) {
-          // Figure out which column matches seller_id by checking overlap
           const sellerIds = new Set(listingsBySeller.keys());
           for (const p of profiles as any[]) {
-            // Try common column names
             const matchId = p.user_id || p.id;
             if (sellerIds.has(matchId)) {
-              profileMap.set(matchId, p as Profile);
+              profileMap.set(matchId, p);
             }
           }
         }
