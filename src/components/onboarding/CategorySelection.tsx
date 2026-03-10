@@ -87,13 +87,13 @@ export default function CategorySelection({ selectedCategories, onToggle, onNext
               }
               whileTap={{ scale: 0.95 }}
               onClick={() => onToggle(hero.id)}
-              className={`flex items-center gap-3 rounded-full border-2 px-8 py-4 text-lg font-semibold transition-all duration-200 ${
+              className={`flex items-center gap-2 rounded-full border-2 px-5 py-3 text-base font-medium transition-all duration-200 ${
                 isHeroSelected
                   ? "border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/25"
                   : "border-border bg-card text-foreground hover:border-primary/40 shadow-sm"
               }`}
             >
-              <CategoryIcon name={hero.icon} className="h-6 w-6" />
+              <CategoryIcon name={hero.icon} className="h-5 w-5" />
               <span>{hero.label}</span>
             </motion.button>
           );
