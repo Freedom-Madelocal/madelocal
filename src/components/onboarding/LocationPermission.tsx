@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { MapPin, Loader2 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { useSellers } from "@/hooks/use-sellers";
+import FloatingBubbles from "./FloatingBubbles";
 
 interface Props {
   onLocationGranted: (lat: number, lng: number) => void;
@@ -47,15 +48,6 @@ export default function LocationPermission({ onLocationGranted, onNext, nearbyCo
   };
 
   const topSellers = (sellers ?? []).slice(0, 5);
-
-  // Position bubbles in a nice arc at the bottom
-  const bubblePositions = [
-    { left: '10%', bottom: '140px' },
-    { left: '28%', bottom: '110px' },
-    { left: '50%', bottom: '100px' },
-    { left: '72%', bottom: '110px' },
-    { left: '90%', bottom: '140px' },
-  ];
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-background px-6 text-center">
@@ -146,54 +138,7 @@ export default function LocationPermission({ onLocationGranted, onNext, nearbyCo
           </motion.div>
 
           {/* Floating seller bubbles */}
-          <div className="absolute inset-x-0 bottom-0 h-56 pointer-events-none">
-            {topSellers.map((seller, i) => {
-              const pos = bubblePositions[i];
-              const firstPrice = seller.listings?.[0]?.price;
-              const displayName = seller.name || "Seller";
-              const imgSrc = seller.avatar_url || seller.listings?.[0]?.images?.[0];
-
-              return (
-                <motion.div
-                  key={seller.id}
-                  initial={{ y: 80, opacity: 0, scale: 0.5 }}
-                  animate={{ y: 0, opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.8 + i * 0.12, type: "spring", stiffness: 200, damping: 18 }}
-                  className="absolute -translate-x-1/2 pointer-events-auto group"
-                  style={{ left: pos.left, bottom: pos.bottom }}
-                >
-                  {/* Name tooltip on hover */}
-                  <div className="absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-foreground px-3 py-1 text-xs font-medium text-background opacity-0 transition-opacity duration-200 group-hover:opacity-100 shadow-md">
-                    {displayName}
-                  </div>
-
-                  {/* Avatar bubble */}
-                  <div className="relative">
-                    <div className="h-14 w-14 overflow-hidden rounded-full border-2 border-background shadow-lg ring-2 ring-primary/20">
-                      {imgSrc ? (
-                        <img
-                          src={imgSrc}
-                          alt={displayName}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground text-lg font-bold">
-                          {displayName.charAt(0)}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Price badge */}
-                    {firstPrice != null && (
-                      <span className="absolute -bottom-1.5 -right-1.5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground shadow-sm">
-                        ${Number(firstPrice).toFixed(0)}
-                      </span>
-                    )}
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
+          <FloatingBubbles sellers={topSellers} />
         </>
       ) : (
         <>
