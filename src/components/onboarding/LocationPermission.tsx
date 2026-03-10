@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { MapPin, Loader2 } from "lucide-react";
 import confetti from "canvas-confetti";
-import { useSellers } from "@/hooks/use-sellers";
+import { useSellers, useCategories } from "@/hooks/use-sellers";
 import FloatingBubbles from "./FloatingBubbles";
 
 interface Props {
