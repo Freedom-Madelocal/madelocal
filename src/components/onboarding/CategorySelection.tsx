@@ -31,7 +31,18 @@ export default function CategorySelection({ selectedCategories, onToggle, onNext
       .from("categories")
       .select("id,label,icon")
       .then(({ data }) => {
-        if (data) setCategories(data as Category[]);
+        if (data) {
+          const prioritized = ["eggs", "baked", "honey and syrup"];
+          const sorted = [...(data as Category[])].sort((a, b) => {
+            const aIdx = prioritized.findIndex(p => a.label.toLowerCase().includes(p));
+            const bIdx = prioritized.findIndex(p => b.label.toLowerCase().includes(p));
+            if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+            if (aIdx !== -1) return -1;
+            if (bIdx !== -1) return 1;
+            return 0;
+          });
+          setCategories(sorted);
+        }
       });
   }, []);
 
