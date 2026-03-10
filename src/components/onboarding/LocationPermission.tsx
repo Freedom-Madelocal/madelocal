@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { MapPin, Loader2 } from "lucide-react";
+import confetti from "canvas-confetti";
 
 interface Props {
   onLocationGranted: (lat: number, lng: number) => void;
@@ -12,6 +13,19 @@ interface Props {
 
 export default function LocationPermission({ onLocationGranted, onNext, nearbyCount, setNearbyCount }: Props) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'granted' | 'denied'>('idle');
+
+  useEffect(() => {
+    if (status === 'granted') {
+      const colors = ['#005027', '#3bb371', '#CFB53B'];
+      const end = Date.now() + 1500;
+      const frame = () => {
+        confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors });
+        confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors });
+        if (Date.now() < end) requestAnimationFrame(frame);
+      };
+      frame();
+    }
+  }, [status]);
 
   const requestLocation = () => {
     setStatus('loading');
