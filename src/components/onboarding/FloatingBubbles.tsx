@@ -122,7 +122,7 @@ export default function FloatingBubbles({ sellers }: Props) {
   ];
 
   return (
-    <div ref={containerRef} className="absolute inset-x-0 bottom-0 h-56 pointer-events-none overflow-hidden">
+    <div ref={containerRef} className="absolute inset-x-0 bottom-0 h-56 pointer-events-none overflow-hidden" style={{ zIndex: 10 }}>
       {topSellers.map((seller, i) => {
         const firstPrice = seller.listings?.[0]?.price;
         const displayName = seller.name || "Seller";
