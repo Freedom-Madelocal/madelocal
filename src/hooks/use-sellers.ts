@@ -116,16 +116,16 @@ export function useSellers(userLocation?: { lat: number; lng: number } | null) {
 
         results.push({
           id: sellerId,
-          name: profile?.name || sellerListings[0]?.location?.split(",")[0] || "Local Seller",
-          email: profile?.email ?? null,
-          phone: profile?.phone ?? null,
+          name: profile?.shop_name || profile?.full_name || profile?.name || "Local Seller",
+          email: null,
+          phone: null,
           bio: profile?.bio ?? null,
-          avatar_url: profile?.avatar_url ?? firstListingWithImage?.images?.[0] ?? null,
+          avatar_url: profile?.shop_avatar_url ?? profile?.avatar_url ?? firstListingWithImage?.images?.[0] ?? null,
           venmo_link: profile?.venmo_link ?? null,
-          address: profile?.address ?? sellerListings[0]?.location ?? null,
+          address: null, // Hidden until shared via messaging
           latitude: profile?.latitude ?? null,
           longitude: profile?.longitude ?? null,
-          sms_consent: profile?.sms_consent ?? null,
+          sms_consent: null,
           created_at: profile?.created_at ?? sellerListings[0]?.created_at,
           updated_at: profile?.updated_at ?? sellerListings[0]?.updated_at,
           listings: sellerListings,
