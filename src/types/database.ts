@@ -16,9 +16,9 @@ export type Database = {
         Relationships: []
       }
       categories: {
-        Row: { created_at: string; icon: string | null; id: string; name: string }
-        Insert: { created_at?: string; icon?: string | null; id?: string; name: string }
-        Update: { created_at?: string; icon?: string | null; id?: string; name?: string }
+        Row: { created_at: string; icon: string | null; id: string; label: string; slug: string; sort_order: number | null }
+        Insert: { created_at?: string; icon?: string | null; id?: string; label: string; slug: string; sort_order?: number | null }
+        Update: { created_at?: string; icon?: string | null; id?: string; label?: string; slug?: string; sort_order?: number | null }
         Relationships: []
       }
       conversations: {

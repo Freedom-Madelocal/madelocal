@@ -6,7 +6,7 @@ import * as LucideIcons from "lucide-react";
 
 interface Category {
   id: string;
-  name: string;
+  label: string;
   icon: string | null;
 }
 
@@ -29,7 +29,7 @@ export default function CategorySelection({ selectedCategories, onToggle, onNext
   useEffect(() => {
     supabase
       .from("categories")
-      .select("*")
+      .select("id,label,icon")
       .then(({ data }) => {
         if (data) setCategories(data as Category[]);
       });
@@ -87,7 +87,7 @@ export default function CategorySelection({ selectedCategories, onToggle, onNext
               }`}
             >
               <CategoryIcon name={cat.icon} className="h-5 w-5" />
-              <span>{cat.name}</span>
+              <span>{cat.label}</span>
             </motion.button>
           );
         })}
