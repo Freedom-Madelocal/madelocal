@@ -29,7 +29,7 @@ export default function CategorySelection({ selectedCategories, onToggle, onNext
   useEffect(() => {
     supabase
       .from("categories")
-      .select("*")
+      .select("id,label,icon")
       .then(({ data }) => {
         if (data) setCategories(data as Category[]);
       });
