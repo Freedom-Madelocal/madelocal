@@ -74,10 +74,10 @@ export function useSellers(userLocation?: { lat: number; lng: number } | null) {
 
       const sellerIds = [...new Set(typedListings.map((l) => l.seller_id))];
 
+      // Fetch all profiles and match by id field
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
-        .select("*")
-        .in("id", sellerIds);
+        .select("*");
 
       if (profilesError) throw profilesError;
       const typedProfiles = (profiles ?? []) as Profile[];
