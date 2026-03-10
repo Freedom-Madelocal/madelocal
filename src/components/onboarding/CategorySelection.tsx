@@ -23,7 +23,7 @@ export default function CategorySelection({ selectedCategories, onToggle, onNext
       .from("categories")
       .select("*")
       .then(({ data }) => {
-        if (data) setCategories(data);
+        if (data) setCategories(data as Category[]);
       });
   }, []);
 
