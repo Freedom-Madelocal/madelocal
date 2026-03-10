@@ -6,7 +6,7 @@ import * as LucideIcons from "lucide-react";
 
 interface Category {
   id: string;
-  name: string;
+  label: string;
   icon: string | null;
 }
 
