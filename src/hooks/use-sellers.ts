@@ -66,7 +66,8 @@ export function useSellers(userLocation?: { lat: number; lng: number } | null) {
     queryFn: async () => {
       const { data: allListings, error: listingsError } = await supabase
         .from("listings")
-        .select("*");
+        .select("*")
+        .eq("is_active", true);
 
       if (listingsError) throw listingsError;
       const typedListings = (allListings ?? []) as Listing[];
