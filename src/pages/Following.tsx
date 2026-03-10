@@ -7,13 +7,12 @@ export default function Following() {
   const navigate = useNavigate();
   const { data: sellers = [], isLoading } = useSellers();
 
-  // Show recently updated listings as a feed
   const recentUpdates = sellers
     .flatMap((seller) =>
       seller.listings.map((listing) => ({
-        sellerId: seller.user_id,
+        sellerId: seller.id,
         sellerName: seller.name,
-        sellerPhoto: seller.avatar_url || listing.image_url || "",
+        sellerPhoto: seller.avatar_url || listing.images?.[0] || "",
         listingTitle: listing.title,
         updatedAt: listing.updated_at,
         isActive: listing.is_active,
