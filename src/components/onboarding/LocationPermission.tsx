@@ -14,10 +14,11 @@ interface Props {
   selectedCategories?: string[];
 }
 
-export default function LocationPermission({ onLocationGranted, onNext, nearbyCount, setNearbyCount }: Props) {
+export default function LocationPermission({ onLocationGranted, onNext, nearbyCount, setNearbyCount, selectedCategories = [] }: Props) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'granted' | 'denied'>('idle');
   const [userLoc, setUserLoc] = useState<{ lat: number; lng: number } | null>(null);
   const { data: sellers } = useSellers(userLoc);
+  const { data: categories } = useCategories();
 
   useEffect(() => {
     if (status === 'granted') {
