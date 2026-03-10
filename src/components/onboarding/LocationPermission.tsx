@@ -49,15 +49,6 @@ export default function LocationPermission({ onLocationGranted, onNext, nearbyCo
 
   const topSellers = (sellers ?? []).slice(0, 5);
 
-  // Position bubbles in a nice arc at the bottom
-  const bubblePositions = [
-    { left: '10%', bottom: '140px' },
-    { left: '28%', bottom: '110px' },
-    { left: '50%', bottom: '100px' },
-    { left: '72%', bottom: '110px' },
-    { left: '90%', bottom: '140px' },
-  ];
-
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-background px-6 text-center">
       {status === 'idle' || status === 'loading' ? (
