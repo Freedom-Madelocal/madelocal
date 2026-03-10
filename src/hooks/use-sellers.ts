@@ -128,7 +128,7 @@ export function useSellerById(sellerId: string | undefined) {
     enabled: !!sellerId,
     queryFn: async () => {
       const { data: profile, error } = await supabase
-        .from("profiles")
+        .from("sellers_public")
         .select("*")
         .eq("id", sellerId!)
         .single();
