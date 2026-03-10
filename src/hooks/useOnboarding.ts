@@ -8,7 +8,7 @@ export interface OnboardingState {
 }
 
 const initialState: OnboardingState = {
-  step: 'splash',
+  step: 'categories',
   selectedCategories: [],
   location: null,
   nearbyCount: 0,
