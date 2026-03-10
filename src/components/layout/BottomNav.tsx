@@ -14,6 +14,10 @@ export function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Hide when wrapped in native app shell
+  const searchParams = new URLSearchParams(window.location.search);
+  if (searchParams.get("app") === "1") return null;
+
   // Hide on seller profile pages
   if (location.pathname.startsWith("/seller/")) return null;
 
