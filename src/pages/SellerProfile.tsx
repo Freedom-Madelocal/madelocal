@@ -64,14 +64,6 @@ export default function SellerProfile() {
 
         <div className="absolute bottom-4 left-4 right-4">
           <h1 className="text-2xl font-bold text-primary-foreground">{seller.name}</h1>
-          <div className="mt-1 flex items-center gap-2 text-sm text-primary-foreground/80">
-            {seller.address && (
-              <>
-                <MapPin className="h-3.5 w-3.5" />
-                <span>{seller.address}</span>
-              </>
-            )}
-          </div>
         </div>
       </div>
 
