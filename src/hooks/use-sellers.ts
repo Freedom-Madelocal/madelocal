@@ -81,17 +81,15 @@ export function useSellers(userLocation?: { lat: number; lng: number } | null) {
       });
 
       // Try to fetch profiles for enrichment (name, bio, avatar, venmo)
-      let profileMap = new Map<string, Profile>();
+      let profileMap = new Map<string, any>();
       try {
         const { data: profiles } = await supabase.from("profiles").select("*");
         if (profiles?.length) {
-          // Figure out which column matches seller_id by checking overlap
           const sellerIds = new Set(listingsBySeller.keys());
           for (const p of profiles as any[]) {
-            // Try common column names
             const matchId = p.user_id || p.id;
             if (sellerIds.has(matchId)) {
-              profileMap.set(matchId, p as Profile);
+              profileMap.set(matchId, p);
             }
           }
         }
@@ -118,16 +116,16 @@ export function useSellers(userLocation?: { lat: number; lng: number } | null) {
 
         results.push({
           id: sellerId,
-          name: profile?.name || sellerListings[0]?.location?.split(",")[0] || "Local Seller",
-          email: profile?.email ?? null,
-          phone: profile?.phone ?? null,
+          name: profile?.shop_name || profile?.full_name || profile?.name || "Local Seller",
+          email: null,
+          phone: null,
           bio: profile?.bio ?? null,
-          avatar_url: profile?.avatar_url ?? firstListingWithImage?.images?.[0] ?? null,
+          avatar_url: profile?.shop_avatar_url ?? profile?.avatar_url ?? firstListingWithImage?.images?.[0] ?? null,
           venmo_link: profile?.venmo_link ?? null,
-          address: profile?.address ?? sellerListings[0]?.location ?? null,
+          address: null, // Hidden until shared via messaging
           latitude: profile?.latitude ?? null,
           longitude: profile?.longitude ?? null,
-          sms_consent: profile?.sms_consent ?? null,
+          sms_consent: null,
           created_at: profile?.created_at ?? sellerListings[0]?.created_at,
           updated_at: profile?.updated_at ?? sellerListings[0]?.updated_at,
           listings: sellerListings,
@@ -159,13 +157,13 @@ export function useSellerById(sellerId: string | undefined) {
       const typedListings = (listings ?? []) as Listing[];
 
       // Try to get profile
-      let profile: Profile | null = null;
+      let profile: any = null;
       try {
         const { data: profiles } = await supabase.from("profiles").select("*");
         if (profiles) {
           profile = (profiles as any[]).find(
             (p) => p.id === sellerId || p.user_id === sellerId
-          ) as Profile | null;
+          );
         }
       } catch {
         // Profile unavailable
@@ -175,16 +173,16 @@ export function useSellerById(sellerId: string | undefined) {
 
       return {
         id: sellerId!,
-        name: profile?.name || typedListings[0]?.location?.split(",")[0] || "Local Seller",
-        email: profile?.email ?? null,
-        phone: profile?.phone ?? null,
+        name: profile?.shop_name || profile?.full_name || profile?.name || "Local Seller",
+        email: null,
+        phone: null,
         bio: profile?.bio ?? null,
-        avatar_url: profile?.avatar_url ?? firstImage ?? null,
+        avatar_url: profile?.shop_avatar_url ?? profile?.avatar_url ?? firstImage ?? null,
         venmo_link: profile?.venmo_link ?? null,
-        address: profile?.address ?? typedListings[0]?.location ?? null,
+        address: null, // Hidden until shared via messaging
         latitude: profile?.latitude ?? null,
         longitude: profile?.longitude ?? null,
-        sms_consent: profile?.sms_consent ?? null,
+        sms_consent: null,
         created_at: profile?.created_at ?? typedListings[0]?.created_at ?? "",
         updated_at: profile?.updated_at ?? typedListings[0]?.updated_at ?? "",
         listings: typedListings,
