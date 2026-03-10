@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
+import * as LucideIcons from "lucide-react";
 
 interface Category {
   id: string;
@@ -13,6 +14,13 @@ interface Props {
   selectedCategories: string[];
   onToggle: (id: string) => void;
   onNext: () => void;
+}
+
+function CategoryIcon({ name, className }: { name: string | null; className?: string }) {
+  if (!name) return null;
+  const Icon = (LucideIcons as any)[name];
+  if (!Icon) return <span className={className}>•</span>;
+  return <Icon className={className} />;
 }
 
 export default function CategorySelection({ selectedCategories, onToggle, onNext }: Props) {
@@ -78,7 +86,7 @@ export default function CategorySelection({ selectedCategories, onToggle, onNext
                   : "border-border bg-card text-foreground hover:border-primary/40 shadow-sm"
               }`}
             >
-              <span className="text-xl">{cat.icon}</span>
+              <CategoryIcon name={cat.icon} className="h-5 w-5" />
               <span>{cat.name}</span>
             </motion.button>
           );
