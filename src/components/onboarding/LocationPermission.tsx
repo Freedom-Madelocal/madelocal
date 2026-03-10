@@ -20,17 +20,14 @@ export default function LocationPermission({ onLocationGranted, onNext, nearbyCo
 
   useEffect(() => {
     if (status === 'granted') {
-      const colors = ['#00C853', '#FFD600', '#FF6D00', '#D500F9', '#00B0FF', '#FF1744', '#76FF03'];
-      confetti({
-        particleCount: 120,
-        spread: 160,
-        origin: { x: 0.5, y: 0 },
-        colors,
-        gravity: 0.3,
-        ticks: 400,
-        startVelocity: 35,
-        scalar: 1.2,
-      });
+      const colors = ['#005027', '#3bb371', '#CFB53B'];
+      const end = Date.now() + 1500;
+      const frame = () => {
+        confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors });
+        confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors });
+        if (Date.now() < end) requestAnimationFrame(frame);
+      };
+      frame();
     }
   }, [status]);
 
