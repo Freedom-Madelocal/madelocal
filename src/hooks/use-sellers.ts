@@ -2,53 +2,68 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 
 export interface Profile {
-  address: string | null;
-  avatar_url: string | null;
-  bio: string | null;
-  created_at: string;
-  email: string | null;
   id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  bio: string | null;
+  avatar_url: string | null;
+  venmo_link: string | null;
+  address: string | null;
   latitude: number | null;
   longitude: number | null;
-  name: string;
-  phone: string | null;
-  role: string | null;
   sms_consent: boolean | null;
+  created_at: string;
   updated_at: string;
-  user_id: string;
-  venmo_link: string | null;
 }
 
 export interface Listing {
-  category_id: string;
-  created_at: string;
-  description: string | null;
   id: string;
-  image_url: string | null;
-  is_active: boolean | null;
-  price: number | null;
   seller_id: string;
   title: string;
-  updated_at: string;
-}
-
-export interface Category {
+  description: string | null;
+  price: number | null;
+  category: string;
+  images: string[];
+  location: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  is_active: boolean;
+  is_farmstand: boolean;
+  stock_count: number | null;
+  is_preorder: boolean;
+  egg_count: number | null;
+  promo_code: string | null;
+  promo_discount_percent: number | null;
   created_at: string;
-  icon: string | null;
-  id: string;
-  name: string;
+  updated_at: string;
 }
 
 export interface SellerWithListings extends Profile {
   listings: Listing[];
   categoryName?: string;
+  distance?: number;
 }
 
-export function useSellers() {
+function getDistanceMiles(
+  lat1: number, lon1: number,
+  lat2: number, lon2: number
+): number {
+  const R = 3958.8;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) *
+    Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+export function useSellers(userLocation?: { lat: number; lng: number } | null) {
   return useQuery({
-    queryKey: ["sellers"],
+    queryKey: ["sellers", userLocation?.lat, userLocation?.lng],
     queryFn: async () => {
-      // Get listings first to find active sellers
       const { data: allListings, error: listingsError } = await supabase
         .from("listings")
         .select("*");
@@ -62,48 +77,60 @@ export function useSellers() {
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
         .select("*")
-        .in("user_id", sellerIds);
+        .in("id", sellerIds);
 
       if (profilesError) throw profilesError;
       const typedProfiles = (profiles ?? []) as Profile[];
-      if (!typedProfiles.length) return [];
 
-      const { data: categories } = await supabase.from("categories").select("*");
-      const typedCategories = (categories ?? []) as Category[];
-
-      const categoryMap = new Map(typedCategories.map((c) => [c.id, c]));
       const listingsBySeller = new Map<string, Listing[]>();
-
       typedListings.forEach((l) => {
         const existing = listingsBySeller.get(l.seller_id) ?? [];
         existing.push(l);
         listingsBySeller.set(l.seller_id, existing);
       });
 
-      return typedProfiles.map((profile): SellerWithListings => {
-        const sellerListings = listingsBySeller.get(profile.user_id) ?? [];
-        const primaryCatId = sellerListings[0]?.category_id;
-        const primaryCat = primaryCatId ? categoryMap.get(primaryCatId) : undefined;
+      const results = typedProfiles.map((profile): SellerWithListings => {
+        const sellerListings = listingsBySeller.get(profile.id) ?? [];
+        const primaryCategory = sellerListings[0]?.category;
+
+        let distance: number | undefined;
+        if (userLocation) {
+          // Use listing location first, then profile location
+          const listingWithCoords = sellerListings.find((l) => l.latitude && l.longitude);
+          const lat = listingWithCoords?.latitude ?? profile.latitude;
+          const lon = listingWithCoords?.longitude ?? profile.longitude;
+          if (lat && lon) {
+            distance = getDistanceMiles(userLocation.lat, userLocation.lng, lat, lon);
+          }
+        }
 
         return {
           ...profile,
           listings: sellerListings,
-          categoryName: primaryCat?.name,
+          categoryName: primaryCategory,
+          distance,
         };
       });
+
+      // Sort by distance if location available, otherwise by name
+      if (userLocation) {
+        results.sort((a, b) => (a.distance ?? 9999) - (b.distance ?? 9999));
+      }
+
+      return results;
     },
   });
 }
 
-export function useSellerById(userId: string | undefined) {
+export function useSellerById(sellerId: string | undefined) {
   return useQuery({
-    queryKey: ["seller", userId],
-    enabled: !!userId,
+    queryKey: ["seller", sellerId],
+    enabled: !!sellerId,
     queryFn: async () => {
       const { data: profile, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("user_id", userId!)
+        .eq("id", sellerId!)
         .single();
 
       if (error) throw error;
@@ -112,18 +139,14 @@ export function useSellerById(userId: string | undefined) {
       const { data: listings } = await supabase
         .from("listings")
         .select("*")
-        .eq("seller_id", userId!);
+        .eq("seller_id", sellerId!);
 
       const typedListings = (listings ?? []) as Listing[];
-
-      const { data: categories } = await supabase.from("categories").select("*");
-      const typedCategories = (categories ?? []) as Category[];
-      const categoryMap = new Map(typedCategories.map((c) => [c.id, c]));
 
       return {
         ...typedProfile,
         listings: typedListings,
-        categoryName: categoryMap.get(typedListings[0]?.category_id ?? "")?.name,
+        categoryName: typedListings[0]?.category,
       } as SellerWithListings;
     },
   });
@@ -133,11 +156,14 @@ export function useCategories() {
   return useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
+      // Categories are inline on listings, so extract unique ones
       const { data, error } = await supabase
-        .from("categories")
-        .select("*");
+        .from("listings")
+        .select("category");
+
       if (error) throw error;
-      return (data ?? []) as Category[];
+      const categories = [...new Set((data ?? []).map((d: any) => d.category as string))];
+      return categories.filter(Boolean).sort();
     },
   });
 }
