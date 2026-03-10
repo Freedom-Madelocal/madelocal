@@ -152,18 +152,28 @@ export function useSellerById(sellerId: string | undefined) {
   });
 }
 
+export interface Category {
+  id: string;
+  slug: string;
+  label: string;
+  icon: string;
+  sort_order: number;
+  is_active: boolean;
+  hide_from_explore: boolean;
+}
+
 export function useCategories() {
   return useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
-      // Categories are inline on listings, so extract unique ones
       const { data, error } = await supabase
-        .from("listings")
-        .select("category");
+        .from("categories")
+        .select("*");
 
       if (error) throw error;
-      const categories = [...new Set((data ?? []).map((d: any) => d.category as string))];
-      return categories.filter(Boolean).sort();
+      return ((data ?? []) as Category[])
+        .filter((c) => c.is_active && !c.hide_from_explore)
+        .sort((a, b) => a.sort_order - b.sort_order);
     },
   });
 }
