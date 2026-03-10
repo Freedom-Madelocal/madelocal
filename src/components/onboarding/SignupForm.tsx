@@ -48,13 +48,14 @@ export default function SignupForm({ selectedCategories, location, onComplete }:
       if (authError) throw authError;
 
       if (authData.user) {
-        // Update profile with phone, location, sms_consent
+        // Update profile with name, phone, sms_consent
         await supabase.from("profiles").update({
+          full_name: name.trim(),
           phone: phone.trim(),
-          latitude: location?.lat,
-          longitude: location?.lng,
           sms_consent: smsConsent,
-        }).eq("user_id", authData.user.id);
+          sms_consent_at: smsConsent ? new Date().toISOString() : null,
+          onboarding_completed: true,
+        }).eq("id", authData.user.id);
 
         // Save category preferences
         if (selectedCategories.length > 0) {
