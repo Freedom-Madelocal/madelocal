@@ -157,13 +157,13 @@ export function useSellerById(sellerId: string | undefined) {
       const typedListings = (listings ?? []) as Listing[];
 
       // Try to get profile
-      let profile: Profile | null = null;
+      let profile: any = null;
       try {
         const { data: profiles } = await supabase.from("profiles").select("*");
         if (profiles) {
           profile = (profiles as any[]).find(
             (p) => p.id === sellerId || p.user_id === sellerId
-          ) as Profile | null;
+          );
         }
       } catch {
         // Profile unavailable
