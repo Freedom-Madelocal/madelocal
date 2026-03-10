@@ -87,7 +87,7 @@ export default function CategorySelection({ selectedCategories, onToggle, onNext
               }`}
             >
               <CategoryIcon name={cat.icon} className="h-5 w-5" />
-              <span>{cat.name}</span>
+              <span>{cat.label}</span>
             </motion.button>
           );
         })}
