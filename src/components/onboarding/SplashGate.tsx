@@ -7,38 +7,28 @@ export default function SplashGate() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-primary px-6 text-center overflow-hidden">
-      {/* Animated Logo Reveal */}
+    <div className="flex min-h-screen flex-col items-center justify-center bg-primary px-6 text-center">
       <div className="relative mb-8">
-        <motion.div
-          initial={{ clipPath: "inset(0 100% 0 0)" }}
-          animate={{ clipPath: "inset(0 0% 0 0)" }}
+        <motion.img
+          src={logoIcon}
+          alt="MadeLocal logo"
+          className="h-28 w-auto"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
           transition={{
-            duration: 2.2,
-            ease: [0.22, 1, 0.36, 1],
+            delay: 0.3,
+            duration: 0.6,
+            type: "spring",
+            stiffness: 200,
+            damping: 14,
           }}
-        >
-          <motion.img
-            src={logoIcon}
-            alt="MadeLocal logo"
-            className="h-auto origin-center"
-            initial={{ width: "250vw" }}
-            animate={{ width: "14rem" }}
-            transition={{
-              delay: 2.2,
-              duration: 0.6,
-              type: "spring",
-              stiffness: 200,
-              damping: 18,
-            }}
-          />
-        </motion.div>
+        />
       </div>
 
       <motion.p
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 2.8, duration: 0.6 }}
+        transition={{ delay: 0.9, duration: 0.6 }}
         className="mb-2 text-xl text-primary-foreground/90"
       >
         Fresh food from your neighbors
@@ -47,7 +37,7 @@ export default function SplashGate() {
       <motion.p
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 3.0, duration: 0.6 }}
+        transition={{ delay: 1.1, duration: 0.6 }}
         className="mb-12 max-w-xs text-primary-foreground/70"
       >
         Discover homemade eggs, honey, bread, and more from local food makers near you.
@@ -56,7 +46,7 @@ export default function SplashGate() {
       <motion.div
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 3.3, duration: 0.5 }}
+        transition={{ delay: 1.4, duration: 0.5 }}
         className="flex flex-col gap-3"
       >
         <Button
