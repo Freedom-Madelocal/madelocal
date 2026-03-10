@@ -21,9 +21,9 @@ export default function SplashGate() {
           <motion.img
             src={logoIcon}
             alt="MadeLocal logo"
-            className="w-auto origin-center"
-            initial={{ height: "60vh" }}
-            animate={{ height: "7rem" }}
+            className="h-auto origin-center"
+            initial={{ width: "250vw" }}
+            animate={{ width: "14rem" }}
             transition={{
               delay: 2.2,
               duration: 0.6,
