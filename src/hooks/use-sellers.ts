@@ -151,15 +151,6 @@ export function useSellerById(sellerId: string | undefined) {
     queryKey: ["seller", sellerId],
     enabled: !!sellerId,
     queryFn: async () => {
-      const { data: profile, error } = await supabase
-        .from("sellers_public")
-        .select("*")
-        .eq("id", sellerId!)
-        .single();
-
-      if (error) throw error;
-      const typedProfile = profile as Profile;
-
       const { data: listings } = await supabase
         .from("listings")
         .select("*")
@@ -167,8 +158,35 @@ export function useSellerById(sellerId: string | undefined) {
 
       const typedListings = (listings ?? []) as Listing[];
 
+      // Try to get profile
+      let profile: Profile | null = null;
+      try {
+        const { data: profiles } = await supabase.from("profiles").select("*");
+        if (profiles) {
+          profile = (profiles as any[]).find(
+            (p) => p.id === sellerId || p.user_id === sellerId
+          ) as Profile | null;
+        }
+      } catch {
+        // Profile unavailable
+      }
+
+      const firstImage = typedListings.find((l) => l.images?.length)?.images?.[0];
+
       return {
-        ...typedProfile,
+        id: sellerId!,
+        name: profile?.name || typedListings[0]?.location?.split(",")[0] || "Local Seller",
+        email: profile?.email ?? null,
+        phone: profile?.phone ?? null,
+        bio: profile?.bio ?? null,
+        avatar_url: profile?.avatar_url ?? firstImage ?? null,
+        venmo_link: profile?.venmo_link ?? null,
+        address: profile?.address ?? typedListings[0]?.location ?? null,
+        latitude: profile?.latitude ?? null,
+        longitude: profile?.longitude ?? null,
+        sms_consent: profile?.sms_consent ?? null,
+        created_at: profile?.created_at ?? typedListings[0]?.created_at ?? "",
+        updated_at: profile?.updated_at ?? typedListings[0]?.updated_at ?? "",
         listings: typedListings,
         categoryName: typedListings[0]?.category,
       } as SellerWithListings;
