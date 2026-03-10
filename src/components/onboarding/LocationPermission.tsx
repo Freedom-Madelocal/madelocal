@@ -62,13 +62,17 @@ export default function LocationPermission({ onLocationGranted, onNext, nearbyCo
     })
   );
 
-  // Prioritize sellers matching selected onboarding categories, then fill with others
-  const selectedSet = new Set(selectedCategories);
+  // Map selected category IDs to labels/slugs for matching against listing.category
+  const selectedLabels = new Set(
+    (categories ?? [])
+      .filter(c => selectedCategories.includes(c.id))
+      .flatMap(c => [c.label.toLowerCase(), c.slug?.toLowerCase()].filter(Boolean))
+  );
   const matchingSelected = filteredSellers.filter(seller =>
-    seller.listings?.some(l => selectedSet.has(l.category))
+    seller.listings?.some(l => selectedLabels.has(l.category?.toLowerCase() ?? ''))
   );
   const nonMatching = filteredSellers.filter(seller =>
-    !seller.listings?.some(l => selectedSet.has(l.category))
+    !seller.listings?.some(l => selectedLabels.has(l.category?.toLowerCase() ?? ''))
   );
   const topSellers = [...matchingSelected, ...nonMatching]
     .filter(s => (s.distance ?? 0) <= 10 || !userLoc)
