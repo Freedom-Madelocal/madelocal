@@ -1,7 +1,11 @@
 import { motion } from "framer-motion";
-import { Settings, ChevronRight, Heart, Crown, Bell, MapPin, LogOut } from "lucide-react";
+import { Settings, ChevronRight, Heart, Crown, Bell, MapPin, LogOut, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/hooks/use-auth";
+import { useProfile } from "@/hooks/use-profile";
+import { useNavigate } from "react-router-dom";
 import logoWhite from "@/assets/logo-full-white.png";
 
 const menuItems = [
@@ -9,10 +13,22 @@ const menuItems = [
   { label: "Notifications", icon: Bell },
   { label: "Location Settings", icon: MapPin },
   { label: "Account Settings", icon: Settings },
-  { label: "Sign Out", icon: LogOut },
 ];
 
 export default function Profile() {
+  const { user, signOut } = useAuth();
+  const { data: profile, isLoading } = useProfile();
+  const navigate = useNavigate();
+
+  if (!user) {
+    navigate("/auth");
+    return null;
+  }
+
+  const displayName = profile?.name || user.user_metadata?.name || user.email?.split("@")[0] || "User";
+  const initials = displayName.slice(0, 2).toUpperCase();
+  const location = profile?.address || "Set your location";
+
   return (
     <div className="min-h-screen pb-20">
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl">
@@ -27,16 +43,37 @@ export default function Profile() {
         {/* User Info */}
         <Card className="rounded-2xl border">
           <CardContent className="flex items-center gap-4 p-5">
-            <Avatar className="h-14 w-14">
-              <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" />
-              <AvatarFallback>JD</AvatarFallback>
-            </Avatar>
-            <div>
-              <p className="text-lg font-semibold text-foreground">Jordan Davis</p>
-              <p className="text-sm text-muted-foreground">Granbury, TX</p>
-            </div>
+            {isLoading ? (
+              <>
+                <Skeleton className="h-14 w-14 rounded-full" />
+                <div className="space-y-2">
+                  <Skeleton className="h-5 w-32" />
+                  <Skeleton className="h-4 w-24" />
+                </div>
+              </>
+            ) : (
+              <>
+                <Avatar className="h-14 w-14">
+                  <AvatarImage src={profile?.avatar_url || undefined} />
+                  <AvatarFallback>{initials}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="text-lg font-semibold text-foreground">{displayName}</p>
+                  <p className="text-sm text-muted-foreground">{location}</p>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
+
+        {/* Bio */}
+        {profile?.bio && (
+          <Card className="rounded-2xl border">
+            <CardContent className="p-5">
+              <p className="text-sm text-muted-foreground">{profile.bio}</p>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Premium Card */}
         <motion.div whileTap={{ scale: 0.98 }}>
@@ -58,7 +95,7 @@ export default function Profile() {
 
         {/* Menu */}
         <Card className="overflow-hidden rounded-2xl border">
-          {menuItems.map((item, i) => (
+          {menuItems.map((item) => (
             <button
               key={item.label}
               className="flex w-full items-center gap-3 border-b last:border-0 p-4 transition-colors hover:bg-accent/50"
@@ -75,6 +112,15 @@ export default function Profile() {
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </button>
           ))}
+          <button
+            onClick={signOut}
+            className="flex w-full items-center gap-3 p-4 transition-colors hover:bg-destructive/10"
+          >
+            <LogOut className="h-5 w-5 text-destructive" />
+            <span className="flex-1 text-left text-sm font-medium text-destructive">
+              Sign Out
+            </span>
+          </button>
         </Card>
 
         {/* Footer logo */}
