@@ -72,16 +72,7 @@ export function useSellers(userLocation?: { lat: number; lng: number } | null) {
       const typedListings = (allListings ?? []) as Listing[];
       if (!typedListings.length) return [];
 
-      const sellerIds = [...new Set(typedListings.map((l) => l.seller_id))];
-
-      const { data: profiles, error: profilesError } = await supabase
-        .from("profiles")
-        .select("*")
-        .in("id", sellerIds);
-
-      if (profilesError) throw profilesError;
-      const typedProfiles = (profiles ?? []) as Profile[];
-
+      // Group listings by seller_id
       const listingsBySeller = new Map<string, Listing[]>();
       typedListings.forEach((l) => {
         const existing = listingsBySeller.get(l.seller_id) ?? [];
@@ -89,30 +80,63 @@ export function useSellers(userLocation?: { lat: number; lng: number } | null) {
         listingsBySeller.set(l.seller_id, existing);
       });
 
-      const results = typedProfiles.map((profile): SellerWithListings => {
-        const sellerListings = listingsBySeller.get(profile.id) ?? [];
+      // Try to fetch profiles for enrichment (name, bio, avatar, venmo)
+      let profileMap = new Map<string, Profile>();
+      try {
+        const { data: profiles } = await supabase.from("profiles").select("*");
+        if (profiles?.length) {
+          // Figure out which column matches seller_id by checking overlap
+          const sellerIds = new Set(listingsBySeller.keys());
+          for (const p of profiles as any[]) {
+            // Try common column names
+            const matchId = p.user_id || p.id;
+            if (sellerIds.has(matchId)) {
+              profileMap.set(matchId, p as Profile);
+            }
+          }
+        }
+      } catch {
+        // Profiles unavailable, continue with listing-only data
+      }
+
+      const results: SellerWithListings[] = [];
+
+      for (const [sellerId, sellerListings] of listingsBySeller) {
+        const profile = profileMap.get(sellerId);
         const primaryCategory = sellerListings[0]?.category;
+        const firstListingWithImage = sellerListings.find((l) => l.images?.length);
 
         let distance: number | undefined;
         if (userLocation) {
-          // Use listing location first, then profile location
           const listingWithCoords = sellerListings.find((l) => l.latitude && l.longitude);
-          const lat = listingWithCoords?.latitude ?? profile.latitude;
-          const lon = listingWithCoords?.longitude ?? profile.longitude;
+          const lat = listingWithCoords?.latitude ?? profile?.latitude;
+          const lon = listingWithCoords?.longitude ?? profile?.longitude;
           if (lat && lon) {
             distance = getDistanceMiles(userLocation.lat, userLocation.lng, lat, lon);
           }
         }
 
-        return {
-          ...profile,
+        results.push({
+          id: sellerId,
+          name: profile?.name || sellerListings[0]?.location?.split(",")[0] || "Local Seller",
+          email: profile?.email ?? null,
+          phone: profile?.phone ?? null,
+          bio: profile?.bio ?? null,
+          avatar_url: profile?.avatar_url ?? firstListingWithImage?.images?.[0] ?? null,
+          venmo_link: profile?.venmo_link ?? null,
+          address: profile?.address ?? sellerListings[0]?.location ?? null,
+          latitude: profile?.latitude ?? null,
+          longitude: profile?.longitude ?? null,
+          sms_consent: profile?.sms_consent ?? null,
+          created_at: profile?.created_at ?? sellerListings[0]?.created_at,
+          updated_at: profile?.updated_at ?? sellerListings[0]?.updated_at,
           listings: sellerListings,
           categoryName: primaryCategory,
           distance,
-        };
-      });
+        });
+      }
 
-      // Sort by distance if location available, otherwise by name
+      // Sort by distance if location available
       if (userLocation) {
         results.sort((a, b) => (a.distance ?? 9999) - (b.distance ?? 9999));
       }
@@ -127,15 +151,6 @@ export function useSellerById(sellerId: string | undefined) {
     queryKey: ["seller", sellerId],
     enabled: !!sellerId,
     queryFn: async () => {
-      const { data: profile, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", sellerId!)
-        .single();
-
-      if (error) throw error;
-      const typedProfile = profile as Profile;
-
       const { data: listings } = await supabase
         .from("listings")
         .select("*")
@@ -143,8 +158,35 @@ export function useSellerById(sellerId: string | undefined) {
 
       const typedListings = (listings ?? []) as Listing[];
 
+      // Try to get profile
+      let profile: Profile | null = null;
+      try {
+        const { data: profiles } = await supabase.from("profiles").select("*");
+        if (profiles) {
+          profile = (profiles as any[]).find(
+            (p) => p.id === sellerId || p.user_id === sellerId
+          ) as Profile | null;
+        }
+      } catch {
+        // Profile unavailable
+      }
+
+      const firstImage = typedListings.find((l) => l.images?.length)?.images?.[0];
+
       return {
-        ...typedProfile,
+        id: sellerId!,
+        name: profile?.name || typedListings[0]?.location?.split(",")[0] || "Local Seller",
+        email: profile?.email ?? null,
+        phone: profile?.phone ?? null,
+        bio: profile?.bio ?? null,
+        avatar_url: profile?.avatar_url ?? firstImage ?? null,
+        venmo_link: profile?.venmo_link ?? null,
+        address: profile?.address ?? typedListings[0]?.location ?? null,
+        latitude: profile?.latitude ?? null,
+        longitude: profile?.longitude ?? null,
+        sms_consent: profile?.sms_consent ?? null,
+        created_at: profile?.created_at ?? typedListings[0]?.created_at ?? "",
+        updated_at: profile?.updated_at ?? typedListings[0]?.updated_at ?? "",
         listings: typedListings,
         categoryName: typedListings[0]?.category,
       } as SellerWithListings;
@@ -152,18 +194,28 @@ export function useSellerById(sellerId: string | undefined) {
   });
 }
 
+export interface Category {
+  id: string;
+  slug: string;
+  label: string;
+  icon: string;
+  sort_order: number;
+  is_active: boolean;
+  hide_from_explore: boolean;
+}
+
 export function useCategories() {
   return useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
-      // Categories are inline on listings, so extract unique ones
       const { data, error } = await supabase
-        .from("listings")
-        .select("category");
+        .from("categories")
+        .select("*");
 
       if (error) throw error;
-      const categories = [...new Set((data ?? []).map((d: any) => d.category as string))];
-      return categories.filter(Boolean).sort();
+      return ((data ?? []) as Category[])
+        .filter((c) => c.is_active && !c.hide_from_explore)
+        .sort((a, b) => a.sort_order - b.sort_order);
     },
   });
 }

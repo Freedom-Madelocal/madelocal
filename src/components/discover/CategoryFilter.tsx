@@ -6,20 +6,6 @@ interface CategoryFilterProps {
   onSelect: (id: string) => void;
 }
 
-const categoryEmojis: Record<string, string> = {
-  eggs: "🥚",
-  bread: "🍞",
-  produce: "🥬",
-  meat: "🥩",
-  honey: "🍯",
-  dairy: "🧀",
-  "farm stands": "🏡",
-  "honey and syrup": "🍯",
-  "natural-products": "🌿",
-  "baked-goods": "🍞",
-  "jams-preserves": "🫙",
-};
-
 export function CategoryFilter({ selected, onSelect }: CategoryFilterProps) {
   const { data: categories = [] } = useCategories();
 
@@ -39,17 +25,16 @@ export function CategoryFilter({ selected, onSelect }: CategoryFilterProps) {
       </button>
       {categories.map((cat) => (
         <button
-          key={cat}
-          onClick={() => onSelect(cat)}
+          key={cat.id}
+          onClick={() => onSelect(cat.slug)}
           className={cn(
             "flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-all",
-            selected === cat
+            selected === cat.slug
               ? "bg-primary text-primary-foreground shadow-sm"
               : "bg-secondary text-secondary-foreground hover:bg-accent"
           )}
         >
-          <span>{categoryEmojis[cat.toLowerCase()] || "📦"}</span>
-          <span className="capitalize">{cat.replace(/-/g, " ")}</span>
+          <span>{cat.label}</span>
         </button>
       ))}
     </div>
