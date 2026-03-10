@@ -11,6 +11,7 @@ import Sell from "./pages/Sell";
 import Profile from "./pages/Profile";
 import SellerProfile from "./pages/SellerProfile";
 import Auth from "./pages/Auth";
+import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/profile" element={<Profile />} />
             <Route path="/seller/:id" element={<SellerProfile />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/onboarding" element={<Onboarding />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <BottomNav />
