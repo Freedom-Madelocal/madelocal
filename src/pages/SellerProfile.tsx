@@ -34,7 +34,7 @@ export default function SellerProfile() {
     );
   }
 
-  const photo = seller.avatar_url || seller.listings.find((l) => l.image_url)?.image_url || "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=300&fit=crop";
+  const photo = seller.avatar_url || seller.listings.find((l) => l.images?.length)?.images[0] || "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=300&fit=crop";
 
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -117,9 +117,9 @@ export default function SellerProfile() {
                   className="flex items-center justify-between rounded-xl border bg-card p-4"
                 >
                   <div className="flex items-center gap-3">
-                    {listing.image_url && (
+                    {listing.images?.[0] && (
                       <img
-                        src={listing.image_url}
+                        src={listing.images[0]}
                         alt={listing.title}
                         className="h-12 w-12 rounded-lg object-cover"
                       />
