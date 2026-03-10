@@ -64,44 +64,80 @@ export default function CategorySelection({ selectedCategories, onToggle, onNext
         Select as many as you'd like
       </motion.p>
 
-      <div className="mb-10 flex max-w-md flex-wrap justify-center gap-3">
-        {categories.map((cat, i) => {
-          const isSelected = selectedCategories.includes(cat.id);
+      <div className="mb-10 flex max-w-md flex-col items-center gap-4">
+        {categories.length > 0 && (() => {
+          const hero = categories[0];
+          const isHeroSelected = selectedCategories.includes(hero.id);
           return (
             <motion.button
-              key={cat.id}
-              initial={{ y: 20, opacity: 0 }}
+              key={hero.id}
+              initial={{ y: 20, opacity: 0, scale: 0.95 }}
               animate={{
                 y: 0,
                 opacity: 1,
-                ...(isSelected ? {} : { y: [0, -6, 0] }),
+                scale: 1,
+                ...(isHeroSelected ? {} : { y: [0, -6, 0] }),
               }}
               transition={
-                isSelected
+                isHeroSelected
                   ? { duration: 0.2 }
                   : {
-                      delay: i * 0.05,
-                      y: {
-                        duration: 2.5 + (i % 3) * 0.4,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                        delay: i * 0.3,
-                      },
+                      y: { duration: 2.5, repeat: Infinity, ease: "easeInOut" },
                     }
               }
               whileTap={{ scale: 0.95 }}
-              onClick={() => onToggle(cat.id)}
-              className={`flex items-center gap-2 rounded-full border-2 px-5 py-3 text-base font-medium transition-all duration-200 ${
-                isSelected
+              onClick={() => onToggle(hero.id)}
+              className={`flex items-center gap-3 rounded-full border-2 px-8 py-4 text-lg font-semibold transition-all duration-200 ${
+                isHeroSelected
                   ? "border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/25"
                   : "border-border bg-card text-foreground hover:border-primary/40 shadow-sm"
               }`}
             >
-              <CategoryIcon name={cat.icon} className="h-5 w-5" />
-              <span>{cat.label}</span>
+              <CategoryIcon name={hero.icon} className="h-6 w-6" />
+              <span>{hero.label}</span>
             </motion.button>
           );
-        })}
+        })()}
+
+        <div className="flex flex-wrap justify-center gap-3">
+          {categories.slice(1).map((cat, i) => {
+            const isSelected = selectedCategories.includes(cat.id);
+            return (
+              <motion.button
+                key={cat.id}
+                initial={{ y: 20, opacity: 0 }}
+                animate={{
+                  y: 0,
+                  opacity: 1,
+                  ...(isSelected ? {} : { y: [0, -6, 0] }),
+                }}
+                transition={
+                  isSelected
+                    ? { duration: 0.2 }
+                    : {
+                        delay: (i + 1) * 0.05,
+                        y: {
+                          duration: 2.5 + ((i + 1) % 3) * 0.4,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                          delay: (i + 1) * 0.3,
+                        },
+                      }
+                }
+                whileTap={{ scale: 0.95 }}
+                onClick={() => onToggle(cat.id)}
+                className={`flex items-center gap-2 rounded-full border-2 px-5 py-3 text-base font-medium transition-all duration-200 ${
+                  isSelected
+                    ? "border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/25"
+                    : "border-border bg-card text-foreground hover:border-primary/40 shadow-sm"
+                }`}
+              >
+                <CategoryIcon name={cat.icon} className="h-5 w-5" />
+                <span>{cat.label}</span>
+              </motion.button>
+            );
+          })}
+        </div>
       </div>
 
       <motion.div
