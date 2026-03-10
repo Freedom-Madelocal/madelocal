@@ -32,7 +32,7 @@ export default function CategorySelection({ selectedCategories, onToggle, onNext
       .select("id,label,icon")
       .then(({ data }) => {
         if (data) {
-          const prioritized = ["eggs", "baked", "honey and syrup"];
+          const prioritized = ["eggs", "baked", "produce", "honey and syrup"];
           const sorted = [...(data as Category[])].sort((a, b) => {
             const aIdx = prioritized.findIndex(p => a.label.toLowerCase().includes(p));
             const bIdx = prioritized.findIndex(p => b.label.toLowerCase().includes(p));
