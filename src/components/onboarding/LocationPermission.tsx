@@ -20,15 +20,16 @@ export default function LocationPermission({ onLocationGranted, onNext, nearbyCo
 
   useEffect(() => {
     if (status === 'granted') {
-      const colors = ['#005027', '#3bb371', '#CFB53B'];
+      const colors = ['#00C853', '#FFD600', '#FF6D00', '#D500F9', '#00B0FF', '#FF1744', '#76FF03'];
       confetti({
-        particleCount: 40,
-        spread: 80,
+        particleCount: 120,
+        spread: 160,
         origin: { x: 0.5, y: 0 },
         colors,
-        gravity: 0.4,
-        ticks: 300,
-        startVelocity: 15,
+        gravity: 0.3,
+        ticks: 400,
+        startVelocity: 35,
+        scalar: 1.2,
       });
     }
   }, [status]);
