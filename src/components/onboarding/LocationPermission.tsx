@@ -49,7 +49,35 @@ export default function LocationPermission({ onLocationGranted, onNext, nearbyCo
     );
   };
 
-  const topSellers = (sellers ?? []).slice(0, 5);
+  // Get valid category IDs (active + not hidden from explore)
+  const validCategoryIds = new Set((categories ?? []).map(c => c.id));
+  const validCategoryLabels = new Set((categories ?? []).map(c => c.label.toLowerCase()));
+  const validCategorySlugs = new Set((categories ?? []).map(c => c.slug?.toLowerCase()));
+
+  // Filter sellers to only those with listings in valid categories
+  const filteredSellers = (sellers ?? []).filter(seller =>
+    seller.listings?.some(l => {
+      const cat = l.category?.toLowerCase() ?? '';
+      return validCategoryLabels.has(cat) || validCategorySlugs.has(cat) || validCategoryIds.has(l.category);
+    })
+  );
+
+  // Prioritize sellers matching selected onboarding categories, then fill with others
+  const selectedSet = new Set(selectedCategories);
+  const matchingSelected = filteredSellers.filter(seller =>
+    seller.listings?.some(l => selectedSet.has(l.category))
+  );
+  const nonMatching = filteredSellers.filter(seller =>
+    !seller.listings?.some(l => selectedSet.has(l.category))
+  );
+  const topSellers = [...matchingSelected, ...nonMatching]
+    .filter(s => (s.distance ?? 0) <= 10 || !userLoc)
+    .slice(0, 5);
+
+  // If not enough within 10 miles, fill from farther away
+  const finalSellers = topSellers.length >= 5
+    ? topSellers
+    : [...topSellers, ...filteredSellers.filter(s => !topSellers.includes(s))].slice(0, 5);
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-background px-6 text-center">

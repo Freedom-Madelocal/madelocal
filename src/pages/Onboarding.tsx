@@ -39,6 +39,7 @@ export default function Onboarding() {
               onNext={() => setStep('signup')}
               nearbyCount={state.nearbyCount}
               setNearbyCount={setNearbyCount}
+              selectedCategories={state.selectedCategories}
             />
           </motion.div>
         )}
