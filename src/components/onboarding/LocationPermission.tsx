@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { MapPin, Loader2 } from "lucide-react";
+import confetti from "canvas-confetti";
 
 interface Props {
   onLocationGranted: (lat: number, lng: number) => void;
