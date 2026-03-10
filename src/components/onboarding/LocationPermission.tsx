@@ -168,7 +168,7 @@ export default function LocationPermission({ onLocationGranted, onNext, nearbyCo
           </motion.div>
 
           {/* Floating seller bubbles */}
-          <FloatingBubbles sellers={topSellers} />
+          <FloatingBubbles sellers={finalSellers} />
         </>
       ) : (
         <>
