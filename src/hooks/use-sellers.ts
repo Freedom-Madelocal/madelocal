@@ -74,9 +74,9 @@ export function useSellers(userLocation?: { lat: number; lng: number } | null) {
 
       const sellerIds = [...new Set(typedListings.map((l) => l.seller_id))];
 
-      // Fetch all profiles and match by id field
+      // Try sellers_public view first, fall back to profiles
       const { data: profiles, error: profilesError } = await supabase
-        .from("profiles")
+        .from("sellers_public")
         .select("*");
 
       if (profilesError) throw profilesError;
