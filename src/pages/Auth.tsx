@@ -24,13 +24,13 @@ export default function Auth() {
     try {
       const { data: profile } = await supabase
         .from("profiles")
-        .select("full_name")
+        .select("name")
         .eq("id", userId)
         .maybeSingle();
 
-      if (profile && !profile.full_name && fullName) {
+      if (profile && !profile.name && fullName) {
         await supabase.auth.updateUser({ data: { full_name: fullName } });
-        await supabase.from("profiles").update({ full_name: fullName }).eq("id", userId);
+        await supabase.from("profiles").update({ name: fullName }).eq("id", userId);
       }
     } catch (err) {
       console.error("Backfill name failed:", err);
