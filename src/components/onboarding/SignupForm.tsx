@@ -41,7 +41,7 @@ export default function SignupForm({ selectedCategories, location, onComplete }:
         password: password.trim(),
         options: {
           emailRedirectTo: window.location.origin,
-          data: { name: name.trim() },
+          data: { full_name: name.trim() },
         },
       });
 
