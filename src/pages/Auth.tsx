@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/lib/supabase";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,23 @@ export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const backfillName = async (userId: string, fullName: string) => {
+    try {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("name")
+        .eq("id", userId)
+        .maybeSingle();
+
+      if (profile && !profile.name && fullName) {
+        await supabase.auth.updateUser({ data: { full_name: fullName } });
+        await supabase.from("profiles").update({ name: fullName }).eq("id", userId);
+      }
+    } catch (err) {
+      console.error("Backfill name failed:", err);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -28,6 +46,12 @@ export default function Auth() {
       if (error) {
         toast({ title: "Login failed", description: error.message, variant: "destructive" });
       } else {
+        // Backfill name for existing users if needed
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const metaName = user.user_metadata?.full_name || user.user_metadata?.name;
+          if (metaName) await backfillName(user.id, metaName);
+        }
         navigate("/");
       }
     } else {
