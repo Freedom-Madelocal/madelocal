@@ -19,7 +19,6 @@ const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { location, loading: locLoading, requestLocation } = useUserLocation();
-  const { location, loading: locLoading, requestLocation } = useUserLocation();
 
   const { data: buyerCats } = useQuery({
     queryKey: ["buyer-categories", user?.id],
