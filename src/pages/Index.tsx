@@ -53,7 +53,7 @@ const Index = () => {
         <div className="mx-auto max-w-lg px-4 pb-3 pt-4">
           <div className="flex items-center justify-between">
             <div>
-              <img src={logoFull} alt="MadeLocal" className="h-8 object-contain" />
+              <img src={logoFull} alt="MadeLocal" className="h-16 object-contain" />
               <p className="mt-1 text-sm text-muted-foreground">
                 Discover food near you
               </p>
