@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { SearchBar } from "@/components/discover/SearchBar";
 import { CategoryFilter } from "@/components/discover/CategoryFilter";
@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { MapPin, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import logoFull from "@/assets/logo-full.png";
 
 const Index = () => {
