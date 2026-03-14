@@ -138,12 +138,30 @@ export function useSellers(
         });
       }
 
-      // Sort by distance if location available
+      // Filter to 10mi radius when location is available
+      let filtered = results;
       if (userLocation) {
-        results.sort((a, b) => (a.distance ?? 9999) - (b.distance ?? 9999));
+        filtered = results.filter((s) => (s.distance ?? 9999) <= 10);
       }
 
-      return results;
+      // Partition by preferred categories, then sort each group by distance
+      if (preferredCategories?.length) {
+        const preferred = filtered.filter((s) =>
+          s.listings.some((l) => preferredCategories.includes(l.category))
+        );
+        const others = filtered.filter(
+          (s) => !s.listings.some((l) => preferredCategories.includes(l.category))
+        );
+        const sortByDist = (a: SellerWithListings, b: SellerWithListings) =>
+          (a.distance ?? 9999) - (b.distance ?? 9999);
+        return [...preferred.sort(sortByDist), ...others.sort(sortByDist)];
+      }
+
+      if (userLocation) {
+        filtered.sort((a, b) => (a.distance ?? 9999) - (b.distance ?? 9999));
+      }
+
+      return filtered;
     },
   });
 }
