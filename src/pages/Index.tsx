@@ -17,6 +17,8 @@ const Index = () => {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const { location, loading: locLoading, requestLocation } = useUserLocation();
   const { location, loading: locLoading, requestLocation } = useUserLocation();
 
   const { data: buyerCats } = useQuery({
