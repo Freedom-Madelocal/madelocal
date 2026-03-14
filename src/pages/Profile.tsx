@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import logoWhite from "@/assets/logo-full-white.png";
 
 const menuItems = [
+  { label: "Update My Interests", icon: Heart, action: "interests" },
   { label: "Saved Sellers", icon: Heart, badge: "12" },
   { label: "Notifications", icon: Bell },
   { label: "Location Settings", icon: MapPin },
