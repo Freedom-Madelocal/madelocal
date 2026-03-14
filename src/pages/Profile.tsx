@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Settings, ChevronRight, Heart, Crown, Bell, MapPin, LogOut, User } from "lucide-react";
+import { Settings, ChevronRight, Heart, Crown, Bell, MapPin, LogOut, Sparkles } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
