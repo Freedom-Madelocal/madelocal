@@ -11,7 +11,7 @@ import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 
 const menuItems = [
-  { label: "Update My Interests", icon: Heart, action: "interests" },
+  { label: "Update My Interests", icon: Sparkles, action: "interests" },
   { label: "Saved Sellers", icon: Heart, badge: "12" },
   { label: "Notifications", icon: Bell },
   { label: "Location Settings", icon: MapPin },
