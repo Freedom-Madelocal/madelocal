@@ -22,6 +22,17 @@ export default function Profile() {
   const { user, signOut } = useAuth();
   const { data: profile, isLoading } = useProfile();
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleUpdateInterests = async () => {
+    if (!user) return;
+    // Reset onboarding_completed so the flow works, then navigate
+    await supabase
+      .from("profiles")
+      .update({ onboarding_completed: false })
+      .or(`id.eq.${user.id},external_id.eq.${user.id}`);
+    navigate("/onboarding", { replace: true });
+  };
 
   if (!user) {
     navigate("/auth");
