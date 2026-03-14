@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { cn } from "@/lib/utils";
 import { SearchBar } from "@/components/discover/SearchBar";
 import { CategoryFilter } from "@/components/discover/CategoryFilter";
 import { SellerCard } from "@/components/discover/SellerCard";
@@ -59,9 +60,12 @@ const Index = () => {
               </p>
             </div>
             <Button
-              variant={location ? "secondary" : "outline"}
+              variant="outline"
               size="sm"
-              className="shrink-0 rounded-full gap-1.5"
+              className={cn(
+                "shrink-0 rounded-full gap-1.5",
+                location && "bg-green-100 text-green-700 border-green-300 hover:bg-green-200"
+              )}
               onClick={requestLocation}
               disabled={locLoading}
             >
@@ -70,7 +74,7 @@ const Index = () => {
               ) : (
                 <MapPin className="h-3.5 w-3.5" />
               )}
-              {location ? "Near me" : "Use location"}
+              5 mi
             </Button>
           </div>
           <div className="mt-3">
