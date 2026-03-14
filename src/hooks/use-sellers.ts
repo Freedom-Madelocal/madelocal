@@ -60,9 +60,12 @@ function getDistanceMiles(
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-export function useSellers(userLocation?: { lat: number; lng: number } | null) {
+export function useSellers(
+  userLocation?: { lat: number; lng: number } | null,
+  preferredCategories?: string[]
+) {
   return useQuery({
-    queryKey: ["sellers", userLocation?.lat, userLocation?.lng],
+    queryKey: ["sellers", userLocation?.lat, userLocation?.lng, preferredCategories],
     queryFn: async () => {
       const { data: allListings, error: listingsError } = await supabase
         .from("listings")
