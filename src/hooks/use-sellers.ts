@@ -60,9 +60,12 @@ function getDistanceMiles(
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-export function useSellers(userLocation?: { lat: number; lng: number } | null) {
+export function useSellers(
+  userLocation?: { lat: number; lng: number } | null,
+  preferredCategories?: string[]
+) {
   return useQuery({
-    queryKey: ["sellers", userLocation?.lat, userLocation?.lng],
+    queryKey: ["sellers", userLocation?.lat, userLocation?.lng, preferredCategories],
     queryFn: async () => {
       const { data: allListings, error: listingsError } = await supabase
         .from("listings")
@@ -135,12 +138,30 @@ export function useSellers(userLocation?: { lat: number; lng: number } | null) {
         });
       }
 
-      // Sort by distance if location available
+      // Filter to 10mi radius when location is available
+      let filtered = results;
       if (userLocation) {
-        results.sort((a, b) => (a.distance ?? 9999) - (b.distance ?? 9999));
+        filtered = results.filter((s) => (s.distance ?? 9999) <= 10);
       }
 
-      return results;
+      // Partition by preferred categories, then sort each group by distance
+      if (preferredCategories?.length) {
+        const preferred = filtered.filter((s) =>
+          s.listings.some((l) => preferredCategories.includes(l.category))
+        );
+        const others = filtered.filter(
+          (s) => !s.listings.some((l) => preferredCategories.includes(l.category))
+        );
+        const sortByDist = (a: SellerWithListings, b: SellerWithListings) =>
+          (a.distance ?? 9999) - (b.distance ?? 9999);
+        return [...preferred.sort(sortByDist), ...others.sort(sortByDist)];
+      }
+
+      if (userLocation) {
+        filtered.sort((a, b) => (a.distance ?? 9999) - (b.distance ?? 9999));
+      }
+
+      return filtered;
     },
   });
 }
