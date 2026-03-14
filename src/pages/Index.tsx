@@ -4,6 +4,9 @@ import { CategoryFilter } from "@/components/discover/CategoryFilter";
 import { SellerCard } from "@/components/discover/SellerCard";
 import { useSellers } from "@/hooks/use-sellers";
 import { useUserLocation } from "@/hooks/use-location";
+import { useAuth } from "@/hooks/use-auth";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/lib/supabase";
 import { MapPin, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logoFull from "@/assets/logo-full.png";
@@ -11,8 +14,22 @@ import logoFull from "@/assets/logo-full.png";
 const Index = () => {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
+  const { user } = useAuth();
   const { location, loading: locLoading, requestLocation } = useUserLocation();
-  const { data: sellers = [], isLoading } = useSellers(location);
+
+  const { data: buyerCats } = useQuery({
+    queryKey: ["buyer-categories", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("buyer_categories")
+        .select("category_id")
+        .eq("user_id", user!.id);
+      return data?.map((r: any) => r.category_id) ?? [];
+    },
+  });
+
+  const { data: sellers = [], isLoading } = useSellers(location, buyerCats);
 
   const filtered = useMemo(() => {
     return sellers.filter((s) => {

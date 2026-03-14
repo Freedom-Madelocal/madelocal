@@ -12,7 +12,7 @@ export default function Onboarding() {
 
   const handleComplete = () => {
     setStep('done');
-    navigate('/');
+    navigate('/discover');
   };
 
   return (
