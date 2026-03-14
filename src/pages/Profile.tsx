@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Settings, ChevronRight, Heart, Crown, Bell, MapPin, LogOut, User } from "lucide-react";
+import { Settings, ChevronRight, Heart, Crown, Bell, MapPin, LogOut, Sparkles } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -7,8 +7,11 @@ import { useAuth } from "@/hooks/use-auth";
 import { useProfile } from "@/hooks/use-profile";
 import { useNavigate } from "react-router-dom";
 import logoWhite from "@/assets/logo-full-white.png";
+import { supabase } from "@/lib/supabase";
+import { useToast } from "@/hooks/use-toast";
 
 const menuItems = [
+  { label: "Update My Interests", icon: Sparkles, action: "interests" },
   { label: "Saved Sellers", icon: Heart, badge: "12" },
   { label: "Notifications", icon: Bell },
   { label: "Location Settings", icon: MapPin },
@@ -19,6 +22,17 @@ export default function Profile() {
   const { user, signOut } = useAuth();
   const { data: profile, isLoading } = useProfile();
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleUpdateInterests = async () => {
+    if (!user) return;
+    // Reset onboarding_completed so the flow works, then navigate
+    await supabase
+      .from("profiles")
+      .update({ onboarding_completed: false })
+      .or(`id.eq.${user.id},external_id.eq.${user.id}`);
+    navigate("/onboarding", { replace: true });
+  };
 
   if (!user) {
     navigate("/auth");
@@ -98,6 +112,9 @@ export default function Profile() {
           {menuItems.map((item) => (
             <button
               key={item.label}
+              onClick={() => {
+                if ((item as any).action === "interests") handleUpdateInterests();
+              }}
               className="flex w-full items-center gap-3 border-b last:border-0 p-4 transition-colors hover:bg-accent/50"
             >
               <item.icon className="h-5 w-5 text-muted-foreground" />
