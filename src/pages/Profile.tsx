@@ -101,6 +101,9 @@ export default function Profile() {
           {menuItems.map((item) => (
             <button
               key={item.label}
+              onClick={() => {
+                if ((item as any).action === "interests") handleUpdateInterests();
+              }}
               className="flex w-full items-center gap-3 border-b last:border-0 p-4 transition-colors hover:bg-accent/50"
             >
               <item.icon className="h-5 w-5 text-muted-foreground" />
