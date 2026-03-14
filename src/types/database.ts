@@ -40,9 +40,9 @@ export type Database = {
         Relationships: []
       }
       profiles: {
-        Row: { address: string | null; avatar_url: string | null; bio: string | null; created_at: string; email: string | null; id: string; latitude: number | null; longitude: number | null; name: string; phone: string | null; role: "buyer" | "seller" | "both"; sms_consent: boolean | null; updated_at: string; user_id: string; venmo_link: string | null }
-        Insert: { address?: string | null; avatar_url?: string | null; bio?: string | null; created_at?: string; email?: string | null; id?: string; latitude?: number | null; longitude?: number | null; name: string; phone?: string | null; role?: "buyer" | "seller" | "both"; sms_consent?: boolean | null; updated_at?: string; user_id: string; venmo_link?: string | null }
-        Update: { address?: string | null; avatar_url?: string | null; bio?: string | null; created_at?: string; email?: string | null; id?: string; latitude?: number | null; longitude?: number | null; name?: string; phone?: string | null; role?: "buyer" | "seller" | "both"; sms_consent?: boolean | null; updated_at?: string; user_id?: string; venmo_link?: string | null }
+        Row: { address: string | null; avatar_url: string | null; bio: string | null; created_at: string; email: string | null; id: string; latitude: number | null; longitude: number | null; name: string; onboarding_completed: boolean | null; phone: string | null; role: "buyer" | "seller" | "both"; sms_consent: boolean | null; updated_at: string; user_id: string; venmo_link: string | null }
+        Insert: { address?: string | null; avatar_url?: string | null; bio?: string | null; created_at?: string; email?: string | null; id?: string; latitude?: number | null; longitude?: number | null; name: string; onboarding_completed?: boolean | null; phone?: string | null; role?: "buyer" | "seller" | "both"; sms_consent?: boolean | null; updated_at?: string; user_id: string; venmo_link?: string | null }
+        Update: { address?: string | null; avatar_url?: string | null; bio?: string | null; created_at?: string; email?: string | null; id?: string; latitude?: number | null; longitude?: number | null; name?: string; onboarding_completed?: boolean | null; phone?: string | null; role?: "buyer" | "seller" | "both"; sms_consent?: boolean | null; updated_at?: string; user_id?: string; venmo_link?: string | null }
         Relationships: []
       }
       user_roles: {
