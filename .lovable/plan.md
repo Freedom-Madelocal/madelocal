@@ -1,31 +1,119 @@
 
 
-## Onboarding for Existing Users (Skip Signup)
+# MadeLocal — Local Food Discovery App
 
-**Idea**: When an already-authenticated user hasn't completed onboarding (no `buyer_categories` saved), redirect them to the onboarding flow but skip the signup step — they only go through Categories → Location → done.
+## Overview
+A premium, mobile-first app for discovering and connecting with local food sellers. Clean & minimal design with subtle motion effects, bottom tab navigation, and a "Tinder for farmers market" feel.
 
-### Changes
+---
 
-1. **`src/pages/Index.tsx`** — After fetching `buyerCats`, if the user is logged in and has zero buyer categories, redirect to `/onboarding`.
+## Phase 1: Foundation & Design System
 
-2. **`src/hooks/useOnboarding.ts`** — Add initial step as `'categories'` (already the default — good).
+### Custom Theme
+- Clean white backgrounds, soft grays, subtle green accents for freshness
+- Modern sans-serif typography (Inter or similar)
+- Rounded cards with soft shadows, smooth micro-animations
+- Mobile-first responsive layout (375px primary breakpoint)
 
-3. **`src/pages/Onboarding.tsx`** — Check if user is already authenticated via `useAuth()`. If authenticated:
-   - After the location step, skip signup — go straight to saving `buyer_categories` to the DB and navigating to `/discover`.
-   - Add a `handleCompleteExisting` path that inserts `buyer_categories` for the current user and marks `onboarding_completed: true` on their profile, then navigates to `/discover`.
+### App Shell
+- Bottom tab navigation: **Discover**, **Following**, **Sell**, **Profile**
+- Smooth page transitions with low-motion scroll effects
+- Global search bar component
 
-4. **`src/hooks/useOnboarding.ts`** — No type changes needed; the `'signup'` step simply won't be reached for authenticated users.
+---
 
-### Flow
+## Phase 2: Connect to Existing Supabase Backend
+- Wire up to your existing Lovable project's Supabase instance for seller profiles, listings, users, etc.
+- Set up React Query hooks for data fetching
+- Real-time subscriptions for live updates (availability, live streams)
 
-```text
-Existing user logs in → /discover
-  → buyerCats query returns [] → redirect to /onboarding
-  → Categories → Location → save categories to DB → /discover
-  (signup step skipped entirely)
-```
+---
 
-### Key detail
-- The location step's `onNext` will check auth state: if logged in, save categories + navigate; if not, go to signup step as before.
-- Add `onboarding_completed` profile update so the redirect doesn't loop.
+## Phase 3: Core Screens
+
+### Screen 1 — Discover (Home)
+- Search bar at top ("Eggs, bread, honey...")
+- Horizontal scrolling category filters (Eggs, Bread, Produce, Meat, Honey, Dairy, Farm Stands)
+- Vertical card feed showing sellers with photo, product, distance, availability, follow button
+- Tap card → navigates to Seller Profile
+- Pull-to-refresh and infinite scroll
+
+### Screen 2 — Seller Profile
+- Hero photo with seller name, verified badge, distance
+- Action buttons: Follow, Message, Live Now indicator
+- About section with bio
+- Products list with pricing and availability
+- Contact options: Message, Venmo link, Directions
+- Optional: Live stream embed, podcast episode
+
+### Screen 3 — Following Feed
+- Chronological updates from followed sellers
+- Cards showing restocks, live streams, inventory updates
+- Tap to navigate to seller profile or join live
+
+### Screen 4 — Seller Dashboard (Sell Tab)
+- Availability toggle (on/off)
+- Go Live button (triggers Mux stream)
+- Message buyers interface
+- Analytics cards: Profile Views, Search Appearances, Contact Clicks, Followers
+- Sales tracker (future marketplace prep)
+
+### Screen 5 — Events
+- Event cards with photo, title, date, location
+- QR code generation for event entry
+- Registration flow (download app → register → get invite)
+
+### Screen 6 — Community Listings
+- Aggregated farm stands and community sellers
+- "Claim Listing" button to convert to seller account
+
+### Screen 7 — Profile
+- User info and avatar
+- Saved Sellers list
+- "Support Local" premium membership card
+- Settings (notifications, location, account)
+
+---
+
+## Phase 4: Onboarding Flow
+- 2-3 beautiful intro screens with illustrations
+- Location permission request
+- Interest/preference selection (product categories) — max 3 taps
+- Done → land on Discover screen
+
+---
+
+## Phase 5: Contact & Connection Flow
+- Contact button opens action sheet: Message, Copy Info, Venmo link, Directions
+- Smooth handoff with confirmation toast after action
+- Deep link support for Venmo
+
+---
+
+## Phase 6: Live Streaming (Mux)
+- Mux integration for seller live streams
+- Go Live button in Seller Dashboard
+- Live viewer count and chat window
+- Push notification to followers when seller goes live
+- Live indicator badge on seller cards
+
+---
+
+## Phase 7: Stripe Subscriptions (Freemium/Premium)
+- Enable Stripe integration
+- Free tier: basic discovery, follow sellers, contact
+- Premium seller tier: analytics dashboard, live streaming tools, event stipends, enhanced visibility
+- Subscription management in Profile settings
+- Premium badge on seller profiles
+
+---
+
+## Phase 8: Admin Console
+- Separate admin layout with sidebar navigation
+- User management (view, suspend, verify sellers)
+- Listing moderation
+- Event management
+- Analytics overview (total users, active sellers, engagement)
+- Subscription management
+- Content moderation tools
 
