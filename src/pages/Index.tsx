@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { cn } from "@/lib/utils";
 import { SearchBar } from "@/components/discover/SearchBar";
 import { CategoryFilter } from "@/components/discover/CategoryFilter";
 import { SellerCard } from "@/components/discover/SellerCard";
