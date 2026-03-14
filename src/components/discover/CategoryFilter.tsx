@@ -20,7 +20,6 @@ export function CategoryFilter({ selected, onSelect }: CategoryFilterProps) {
             : "bg-secondary text-secondary-foreground hover:bg-accent"
         )}
       >
-        <span>🌿</span>
         <span>All</span>
       </button>
       {categories.map((cat) => (
