@@ -32,6 +32,13 @@ const Index = () => {
     },
   });
 
+  // Redirect authenticated users who haven't completed onboarding
+  useEffect(() => {
+    if (user && buyerCats !== undefined && buyerCats.length === 0) {
+      navigate("/onboarding", { replace: true });
+    }
+  }, [user, buyerCats, navigate]);
+
   const { data: sellers = [], isLoading } = useSellers(location, buyerCats);
 
   const filtered = useMemo(() => {
