@@ -7,6 +7,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { useProfile } from "@/hooks/use-profile";
 import { useNavigate } from "react-router-dom";
 import logoWhite from "@/assets/logo-full-white.png";
+import { supabase } from "@/lib/supabase";
+import { useToast } from "@/hooks/use-toast";
 
 const menuItems = [
   { label: "Update My Interests", icon: Heart, action: "interests" },
