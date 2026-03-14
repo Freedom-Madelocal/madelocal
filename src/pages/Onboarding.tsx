@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import SplashScreen from "@/components/onboarding/SplashScreen";
 import CategorySelection from "@/components/onboarding/CategorySelection";
@@ -14,43 +15,63 @@ export default function Onboarding() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const [isCompleting, setIsCompleting] = useState(false);
 
   const handleComplete = () => {
     setStep('done');
-    navigate('/discover');
+    navigate('/discover', { replace: true });
   };
 
   const handleCompleteExisting = async () => {
-    if (!user) return;
-    try {
-      // Save buyer categories
-      if (state.selectedCategories.length > 0) {
-        const rows = state.selectedCategories.map(cat => ({
-          user_id: user.id,
-          category_id: cat,
-        }));
-        await supabase.from("buyer_categories").upsert(rows, { onConflict: "user_id,category_id" });
-      }
+    if (!user || isCompleting) return;
+    setIsCompleting(true);
 
-      // Update profile with location and mark onboarding complete
+    try {
       const updates: Record<string, any> = { onboarding_completed: true };
       if (state.location) {
         updates.latitude = state.location.lat;
         updates.longitude = state.location.lng;
       }
-      await supabase.from("profiles").update(updates).eq("user_id", user.id);
+
+      const { error: clearError } = await supabase
+        .from("buyer_categories")
+        .delete()
+        .eq("user_id", user.id);
+      if (clearError) throw clearError;
+
+      if (state.selectedCategories.length > 0) {
+        const { error: insertError } = await supabase.from("buyer_categories").insert(
+          state.selectedCategories.map((categoryId) => ({
+            user_id: user.id,
+            category_id: categoryId,
+          }))
+        );
+        if (insertError) throw insertError;
+      }
+
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update(updates)
+        .or(`id.eq.${user.id},external_id.eq.${user.id}`);
+      if (profileError) throw profileError;
 
       setStep('done');
-      navigate('/discover');
-    } catch {
-      toast({ title: "Something went wrong", variant: "destructive" });
+      navigate('/discover', { replace: true });
+    } catch (error: any) {
+      toast({
+        title: "Could not save onboarding",
+        description: error?.message ?? "Please try again",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCompleting(false);
     }
   };
 
   // For authenticated users, after location step skip signup
-  const handleLocationNext = () => {
+  const handleLocationNext = async () => {
     if (user) {
-      handleCompleteExisting();
+      await handleCompleteExisting();
     } else {
       setStep('signup');
     }

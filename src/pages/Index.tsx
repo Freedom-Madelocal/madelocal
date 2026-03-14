@@ -32,12 +32,31 @@ const Index = () => {
     },
   });
 
+  const { data: onboardingComplete } = useQuery({
+    queryKey: ["onboarding-complete", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("onboarding_completed")
+        .or(`id.eq.${user!.id},external_id.eq.${user!.id}`)
+        .limit(1)
+        .maybeSingle();
+      return Boolean((data as any)?.onboarding_completed);
+    },
+  });
+
   // Redirect authenticated users who haven't completed onboarding
   useEffect(() => {
-    if (user && buyerCats !== undefined && buyerCats.length === 0) {
+    if (
+      user &&
+      onboardingComplete === false &&
+      buyerCats !== undefined &&
+      buyerCats.length === 0
+    ) {
       navigate("/onboarding", { replace: true });
     }
-  }, [user, buyerCats, navigate]);
+  }, [user, onboardingComplete, buyerCats, navigate]);
 
   const { data: sellers = [], isLoading } = useSellers(location, buyerCats);
 
