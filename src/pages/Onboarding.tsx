@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import SplashScreen from "@/components/onboarding/SplashScreen";
 import CategorySelection from "@/components/onboarding/CategorySelection";
