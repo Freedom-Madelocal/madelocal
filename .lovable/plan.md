@@ -1,24 +1,42 @@
 
 
-## Fix: Stop forcing onboarding on authenticated users
+## Integrate Tribekiller `get-seller-analytics` Edge Function
 
-**Problem**: The `useEffect` in `Index.tsx` redirects logged-in users to `/onboarding` whenever their profile has `onboarding_completed` as false/null AND they have no buyer categories. This was meant for first-time onboarding but fires every time — even for users who simply never picked categories or whose profile flag wasn't set.
+**What**: Replace the hardcoded dummy analytics on the Sell page with real data from the Tribekiller backend's `get-seller-analytics` edge function, falling back to placeholder values when the user isn't logged in or the call fails.
 
-**Solution**: Remove the automatic onboarding redirect from `Index.tsx` entirely. Onboarding should only happen when:
-- An unauthenticated user clicks "Get Started" on the splash gate
-- A logged-in user explicitly taps "Update My Interests" in Profile
+### API Details
 
-**Changes**:
+- **Call**: `supabase.functions.invoke('get-seller-analytics')` (no body needed; JWT identifies the seller)
+- **Response shape**: `profile_views`, `search_appearances`, `contact_clicks`, `followers` -- each with `total_30d`, `prev_30d`, `change_pct` (followers has `total` and `engaged_30d` instead)
 
-1. **`src/pages/Index.tsx`** — Remove the `onboardingComplete` query (lines 35-47), remove the redirect `useEffect` (lines 50-59), and remove the unused `useEffect` import if no longer needed. The `buyerCats` query stays since it's used for feed prioritization.
+### Changes
 
-2. **`src/pages/Onboarding.tsx`** — No changes needed; it already handles both authenticated and unauthenticated users correctly.
+1. **New hook `src/hooks/use-seller-analytics.ts`**
+   - Uses `useQuery` + `useAuth` to call `supabase.functions.invoke('get-seller-analytics')`
+   - Returns typed analytics data, `isLoading`, and `error`
+   - Only enabled when user is authenticated
+   - Refetches on window focus, stale time ~5 minutes
 
-3. **`src/App.tsx`** — No changes needed; `/` already shows `SplashGate` for unauthenticated users and `Index` for authenticated ones.
+2. **`src/pages/Sell.tsx`**
+   - Import the new hook and `useAuth`
+   - Remove the static `stats` array constant
+   - Build the `stats` array dynamically from hook data, formatting numbers with `toLocaleString()` and change as `+X%` / `-X%`
+   - For followers: set `extra.value` to `engaged_30d` from the response
+   - While loading, show skeleton placeholders in the analytics cards
+   - If user is not authenticated or fetch fails, show dash values (`"--"`) with no change percentage
 
-**Result**:
-- Unauthenticated user → sees splash gate with "Sign In" / "Get Started"
-- "Get Started" → `/onboarding` (categories → location → signup)
-- Authenticated user → sees discover feed immediately, no forced redirect
-- "Update My Interests" in Profile → resets flag and navigates to `/onboarding` (as already built)
+### Type Definition
+
+```ts
+interface SellerAnalytics {
+  profile_views: { total_30d: number; prev_30d: number; change_pct: number };
+  search_appearances: { total_30d: number; prev_30d: number; change_pct: number };
+  contact_clicks: { total_30d: number; prev_30d: number; change_pct: number };
+  followers: { total: number; engaged_30d: number };
+}
+```
+
+### Fallback Behavior
+- Not logged in: analytics section shows static dashes or a prompt to log in
+- API error / edge function not yet deployed: graceful fallback to `"--"` values with no crash
 
