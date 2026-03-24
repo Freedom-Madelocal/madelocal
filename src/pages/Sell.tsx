@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { Radio, Eye, Search, MousePointerClick, Users, Video } from "lucide-react";
 import { useState } from "react";
 import { Switch } from "@/components/ui/switch";
