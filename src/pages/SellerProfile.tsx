@@ -33,7 +33,7 @@ export default function SellerProfile() {
       return data as { mux_playback_id: string; duration_seconds: number | null } | null;
     },
   });
-  const [showContact, setShowContact] = useState(false);
+
 
   if (isLoading) {
     return (
