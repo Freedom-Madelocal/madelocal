@@ -28,13 +28,13 @@ export default function LiveViewer() {
     // Fetch seller profile
     supabase
       .from("profiles")
-      .select("full_name, shop_name, avatar_url")
+      .select("name, avatar_url")
       .eq("id", sellerId)
       .single()
       .then(({ data }) => {
         if (data) {
           setSellerInfo({
-            name: data.shop_name || data.full_name || "Seller",
+            name: data.name || "Seller",
             avatar_url: data.avatar_url ?? undefined,
           });
         }

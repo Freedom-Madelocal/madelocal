@@ -53,7 +53,7 @@ export function useLiveComments(streamId: string | null) {
           // Fetch profile for the new comment
           const { data: profile } = await supabase
             .from("profiles")
-            .select("full_name, avatar_url")
+            .select("name, avatar_url")
             .eq("id", newComment.user_id)
             .single();
 
@@ -65,7 +65,7 @@ export function useLiveComments(streamId: string | null) {
               user_id: newComment.user_id,
               content: newComment.content,
               created_at: newComment.created_at,
-              user_name: profile?.full_name || "Viewer",
+              user_name: profile?.name || "Viewer",
               avatar_url: profile?.avatar_url,
             },
           ]);

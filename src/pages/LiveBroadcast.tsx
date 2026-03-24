@@ -117,7 +117,7 @@ export default function LiveBroadcast() {
           </span>
         </div>
         <span className="text-xs text-primary-foreground/70">
-          {profile?.full_name || "You"}
+          {profile?.name || "You"}
         </span>
       </div>
 
