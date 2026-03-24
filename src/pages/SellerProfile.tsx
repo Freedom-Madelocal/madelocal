@@ -21,6 +21,20 @@ export default function SellerProfile() {
   const [following, setFollowing] = useState(false);
   const [showContact, setShowContact] = useState(false);
 
+  // Pinned video
+  const { data: pinnedVideo } = useQuery({
+    queryKey: ["pinned-video", id],
+    enabled: !!id,
+    queryFn: async () => {
+      const { data } = await (supabase.from("pinned_videos" as any) as any)
+        .select("mux_playback_id, duration_seconds")
+        .eq("seller_id", id)
+        .maybeSingle();
+      return data as { mux_playback_id: string; duration_seconds: number | null } | null;
+    },
+  });
+  const [showContact, setShowContact] = useState(false);
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
