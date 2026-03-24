@@ -15,6 +15,7 @@ import LiveViewer from "./pages/LiveViewer";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import SplashGate from "./components/onboarding/SplashGate";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,8 @@ function AppRoutes() {
         <Route path="/sell" element={<Sell />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/seller/:id" element={<SellerProfile />} />
+        <Route path="/live/broadcast" element={<LiveBroadcast />} />
+        <Route path="/live/:sellerId" element={<LiveViewer />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="*" element={<NotFound />} />
