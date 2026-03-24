@@ -113,6 +113,23 @@ export default function SellerProfile() {
           </section>
         )}
 
+        {/* Pinned Video */}
+        {pinnedVideo?.mux_playback_id && (
+          <section className="py-4">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              Pinned Video
+            </h2>
+            <div className="mt-3 overflow-hidden rounded-2xl border">
+              <MuxPlayer
+                playbackId={pinnedVideo.mux_playback_id}
+                streamType="on-demand"
+                autoPlay={false}
+                className="w-full aspect-video"
+              />
+            </div>
+          </section>
+        )}
+
         {/* Listings */}
         {seller.listings.length > 0 && (
           <section className="py-4">
