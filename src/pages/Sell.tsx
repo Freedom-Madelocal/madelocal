@@ -52,7 +52,6 @@ export default function Sell() {
   const navigate = useNavigate();
   const [available, setAvailable] = useState(true);
   const [selectedStat, setSelectedStat] = useState<Stat | null>(null);
-  const [selectedStat, setSelectedStat] = useState<Stat | null>(null);
   const { user } = useAuth();
   const { data: analytics, isLoading } = useSellerAnalytics();
 
