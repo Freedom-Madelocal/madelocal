@@ -81,7 +81,7 @@ export function useLiveComments(streamId: string | null) {
   const sendComment = useCallback(
     async (content: string) => {
       if (!streamId || !user || !content.trim()) return;
-      await supabase.from("live_comments").insert({
+      await (supabase.from("live_comments" as any) as any).insert({
         stream_id: streamId,
         user_id: user.id,
         content: content.trim(),
