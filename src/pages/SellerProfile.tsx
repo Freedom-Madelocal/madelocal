@@ -5,7 +5,10 @@ import {
   MapPin, ExternalLink, Navigation, Copy,
 } from "lucide-react";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import MuxPlayer from "@mux/mux-player-react";
 import { useSellerById } from "@/hooks/use-sellers";
+import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
