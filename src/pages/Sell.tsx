@@ -1,9 +1,10 @@
 import { motion } from "framer-motion";
-import { Radio, Eye, Search, MousePointerClick, Users } from "lucide-react";
+import { Radio, Eye, Search, MousePointerClick, Users, Video } from "lucide-react";
 import { useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 const stats = [
   { label: "Profile Views", value: "1,247", icon: Eye, change: "+12%" },
