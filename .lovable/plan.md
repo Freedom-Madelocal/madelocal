@@ -1,35 +1,24 @@
 
 
-## Clickable Analytics Cards with Metric Descriptions
+## Fix: Stop forcing onboarding on authenticated users
 
-**What**: Make each analytics card on the Sell page clickable. Tapping a card opens a dialog showing the metric value, a description of what it means, and (for Followers) an additional "engaged followers" sub-metric.
+**Problem**: The `useEffect` in `Index.tsx` redirects logged-in users to `/onboarding` whenever their profile has `onboarding_completed` as false/null AND they have no buyer categories. This was meant for first-time onboarding but fires every time — even for users who simply never picked categories or whose profile flag wasn't set.
 
-### Data Structure
+**Solution**: Remove the automatic onboarding redirect from `Index.tsx` entirely. Onboarding should only happen when:
+- An unauthenticated user clicks "Get Started" on the splash gate
+- A logged-in user explicitly taps "Update My Interests" in Profile
 
-Extend the `stats` array with `description` and optional `extra` fields:
+**Changes**:
 
-| Metric | Description |
-|--------|-------------|
-| Profile Views | Tracks how many people spent longer than 2 seconds on your profile. |
-| Search Appearances | Shows how many times your profile or listing appeared in a search. |
-| Contact Clicks | Shows how many people clicked the button to get ahold of you. When marketplace settings are enabled, this becomes "Transactions". |
-| Followers | Shows how many people are following you. Also displays engaged followers in the last 30 days (those who interacted with your profile, listings, or videos). |
+1. **`src/pages/Index.tsx`** — Remove the `onboardingComplete` query (lines 35-47), remove the redirect `useEffect` (lines 50-59), and remove the unused `useEffect` import if no longer needed. The `buyerCats` query stays since it's used for feed prioritization.
 
-### Changes — `src/pages/Sell.tsx`
+2. **`src/pages/Onboarding.tsx`** — No changes needed; it already handles both authenticated and unauthenticated users correctly.
 
-1. Add `description` string and optional `extra` object (e.g. `{ label: "Engaged (30d)", value: "89" }`) to each stat entry. All data stays as dummy values, ready for future Tribekiller edge function integration.
+3. **`src/App.tsx`** — No changes needed; `/` already shows `SplashGate` for unauthenticated users and `Index` for authenticated ones.
 
-2. Add `selectedStat` state to track which card was tapped.
-
-3. Make each analytics `Card` clickable with `onClick` and `cursor-pointer` styling.
-
-4. Add a new `Dialog` that displays:
-   - The stat icon in a colored circle
-   - The metric name as title
-   - The metric value prominently
-   - The description text
-   - For Followers: an additional row showing engaged followers count
-   - A "Close" button
-
-### No new files needed — all changes in `Sell.tsx`.
+**Result**:
+- Unauthenticated user → sees splash gate with "Sign In" / "Get Started"
+- "Get Started" → `/onboarding` (categories → location → signup)
+- Authenticated user → sees discover feed immediately, no forced redirect
+- "Update My Interests" in Profile → resets flag and navigates to `/onboarding` (as already built)
 
