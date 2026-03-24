@@ -88,7 +88,7 @@ export default function Sell() {
           <Button
             size="lg"
             className="w-full rounded-2xl bg-live text-live-foreground hover:bg-live/90 h-14 text-base font-semibold"
-            onClick={() => setLiveDialogOpen(true)}
+            onClick={() => navigate("/live/broadcast")}
           >
             <Radio className="h-5 w-5" />
             Go Live

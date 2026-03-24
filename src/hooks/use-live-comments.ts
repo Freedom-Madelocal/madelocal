@@ -20,13 +20,12 @@ export function useLiveComments(streamId: string | null) {
     if (!streamId) return;
 
     // Fetch existing comments
-    supabase
-      .from("live_comments")
+    (supabase.from("live_comments" as any) as any)
       .select("*, profiles:user_id(name, avatar_url)")
       .eq("stream_id", streamId)
       .order("created_at", { ascending: true })
       .limit(100)
-      .then(({ data }) => {
+      .then(({ data }: any) => {
         if (data) {
           setComments(
             data.map((c: any) => ({

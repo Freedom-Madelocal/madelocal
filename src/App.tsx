@@ -10,10 +10,11 @@ import Following from "./pages/Following";
 import Sell from "./pages/Sell";
 import Profile from "./pages/Profile";
 import SellerProfile from "./pages/SellerProfile";
+import LiveBroadcast from "./pages/LiveBroadcast";
+import LiveViewer from "./pages/LiveViewer";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import SplashGate from "./components/onboarding/SplashGate";
-import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
