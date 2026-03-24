@@ -113,6 +113,34 @@ export default function Sell() {
             ))}
           </div>
         </div>
+        {/* Stat Detail Dialog */}
+        <Dialog open={!!selectedStat} onOpenChange={() => setSelectedStat(null)}>
+          <DialogContent className="rounded-2xl max-w-sm mx-auto">
+            <DialogHeader className="space-y-3">
+              {selectedStat && (
+                <>
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                    <selectedStat.icon className="h-6 w-6 text-primary" />
+                  </div>
+                  <DialogTitle className="text-center text-xl">{selectedStat.label}</DialogTitle>
+                  <p className="text-center text-3xl font-bold text-foreground">{selectedStat.value}</p>
+                  <DialogDescription className="text-center text-sm leading-relaxed">
+                    {selectedStat.description}
+                  </DialogDescription>
+                  {selectedStat.extra && (
+                    <div className="rounded-xl bg-muted/50 p-3 flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">{selectedStat.extra.label}</span>
+                      <span className="text-lg font-bold text-foreground">{selectedStat.extra.value}</span>
+                    </div>
+                  )}
+                </>
+              )}
+            </DialogHeader>
+            <Button className="w-full rounded-xl mt-2" onClick={() => setSelectedStat(null)}>
+              Close
+            </Button>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );
