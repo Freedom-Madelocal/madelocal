@@ -49,8 +49,9 @@ function buildStats(data: ReturnType<typeof useSellerAnalytics>["data"]): Stat[]
 }
 
 export default function Sell() {
+  const navigate = useNavigate();
   const [available, setAvailable] = useState(true);
-  const [liveDialogOpen, setLiveDialogOpen] = useState(false);
+  const [selectedStat, setSelectedStat] = useState<Stat | null>(null);
   const [selectedStat, setSelectedStat] = useState<Stat | null>(null);
   const { user } = useAuth();
   const { data: analytics, isLoading } = useSellerAnalytics();
