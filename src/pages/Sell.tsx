@@ -96,7 +96,10 @@ export default function Sell() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
               >
-                <Card className="rounded-2xl border">
+                <Card
+                  className="rounded-2xl border cursor-pointer hover:border-primary/30 transition-colors"
+                  onClick={() => setSelectedStat(stat)}
+                >
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <stat.icon className="h-4 w-4 text-muted-foreground" />
