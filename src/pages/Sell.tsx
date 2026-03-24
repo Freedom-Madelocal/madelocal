@@ -5,6 +5,9 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useSellerAnalytics } from "@/hooks/use-seller-analytics";
+import { useAuth } from "@/hooks/use-auth";
 
 interface Stat {
   label: string;
@@ -15,17 +18,43 @@ interface Stat {
   extra?: { label: string; value: string };
 }
 
-const stats: Stat[] = [
-  { label: "Profile Views", value: "1,247", icon: Eye, change: "+12%", description: "Tracks how many people spent longer than 2 seconds on your profile." },
-  { label: "Search Appearances", value: "3,891", icon: Search, change: "+8%", description: "Shows how many times your profile or listing appeared in a search." },
-  { label: "Contact Clicks", value: "342", icon: MousePointerClick, change: "+23%", description: "Shows how many people clicked the button to get ahold of you. When marketplace settings are enabled, this metric becomes \"Transactions\"." },
-  { label: "Followers", value: "234", icon: Users, change: "+5", description: "Shows how many people are following you. Engaged followers interacted with your profile, listings, or videos in the last 30 days.", extra: { label: "Engaged (30d)", value: "89" } },
-];
+const descriptions = {
+  profileViews: "Tracks how many people spent longer than 2 seconds on your profile.",
+  searchAppearances: "Shows how many times your profile or listing appeared in a search.",
+  contactClicks: "Shows how many people clicked the button to get ahold of you. When marketplace settings are enabled, this metric becomes \"Transactions\".",
+  followers: "Shows how many people are following you. Engaged followers interacted with your profile, listings, or videos in the last 30 days.",
+};
+
+function formatChange(pct: number): string {
+  return pct >= 0 ? `+${pct}%` : `${pct}%`;
+}
+
+function buildStats(data: ReturnType<typeof useSellerAnalytics>["data"]): Stat[] {
+  if (!data) {
+    return [
+      { label: "Profile Views", value: "--", icon: Eye, change: "", description: descriptions.profileViews },
+      { label: "Search Appearances", value: "--", icon: Search, change: "", description: descriptions.searchAppearances },
+      { label: "Contact Clicks", value: "--", icon: MousePointerClick, change: "", description: descriptions.contactClicks },
+      { label: "Followers", value: "--", icon: Users, change: "", description: descriptions.followers },
+    ];
+  }
+
+  return [
+    { label: "Profile Views", value: data.profile_views.total_30d.toLocaleString(), icon: Eye, change: formatChange(data.profile_views.change_pct), description: descriptions.profileViews },
+    { label: "Search Appearances", value: data.search_appearances.total_30d.toLocaleString(), icon: Search, change: formatChange(data.search_appearances.change_pct), description: descriptions.searchAppearances },
+    { label: "Contact Clicks", value: data.contact_clicks.total_30d.toLocaleString(), icon: MousePointerClick, change: formatChange(data.contact_clicks.change_pct), description: descriptions.contactClicks },
+    { label: "Followers", value: data.followers.total.toLocaleString(), icon: Users, change: "", description: descriptions.followers, extra: { label: "Engaged (30d)", value: data.followers.engaged_30d.toLocaleString() } },
+  ];
+}
 
 export default function Sell() {
   const [available, setAvailable] = useState(true);
   const [liveDialogOpen, setLiveDialogOpen] = useState(false);
   const [selectedStat, setSelectedStat] = useState<Stat | null>(null);
+  const { user } = useAuth();
+  const { data: analytics, isLoading } = useSellerAnalytics();
+
+  const stats = buildStats(analytics);
 
   return (
     <div className="min-h-screen pb-20">
@@ -89,30 +118,43 @@ export default function Sell() {
             Analytics
           </h2>
           <div className="grid grid-cols-2 gap-3">
-            {stats.map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
-              >
-                <Card
-                  className="rounded-2xl border cursor-pointer hover:border-primary/30 transition-colors"
-                  onClick={() => setSelectedStat(stat)}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <stat.icon className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-xs font-medium text-primary">{stat.change}</span>
-                    </div>
-                    <p className="mt-2 text-2xl font-bold text-foreground">{stat.value}</p>
-                    <p className="text-xs text-muted-foreground">{stat.label}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+            {isLoading
+              ? Array.from({ length: 4 }).map((_, i) => (
+                  <Card key={i} className="rounded-2xl border">
+                    <CardContent className="p-4 space-y-2">
+                      <Skeleton className="h-4 w-16" />
+                      <Skeleton className="h-7 w-20" />
+                      <Skeleton className="h-3 w-24" />
+                    </CardContent>
+                  </Card>
+                ))
+              : stats.map((stat, i) => (
+                  <motion.div
+                    key={stat.label}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                  >
+                    <Card
+                      className="rounded-2xl border cursor-pointer hover:border-primary/30 transition-colors"
+                      onClick={() => setSelectedStat(stat)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <stat.icon className="h-4 w-4 text-muted-foreground" />
+                          {stat.change && (
+                            <span className="text-xs font-medium text-primary">{stat.change}</span>
+                          )}
+                        </div>
+                        <p className="mt-2 text-2xl font-bold text-foreground">{stat.value}</p>
+                        <p className="text-xs text-muted-foreground">{stat.label}</p>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
           </div>
         </div>
+
         {/* Stat Detail Dialog */}
         <Dialog open={!!selectedStat} onOpenChange={() => setSelectedStat(null)}>
           <DialogContent className="rounded-2xl max-w-sm mx-auto">
