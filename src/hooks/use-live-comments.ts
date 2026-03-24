@@ -22,7 +22,7 @@ export function useLiveComments(streamId: string | null) {
     // Fetch existing comments
     supabase
       .from("live_comments")
-      .select("*, profiles:user_id(full_name, avatar_url)")
+      .select("*, profiles:user_id(name, avatar_url)")
       .eq("stream_id", streamId)
       .order("created_at", { ascending: true })
       .limit(100)
