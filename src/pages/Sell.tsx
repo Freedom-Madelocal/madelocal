@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { Radio, Eye, Search, MousePointerClick, Users, Video } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Radio, Eye, Search, MousePointerClick, Users } from "lucide-react";
 import { useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -48,8 +49,8 @@ function buildStats(data: ReturnType<typeof useSellerAnalytics>["data"]): Stat[]
 }
 
 export default function Sell() {
+  const navigate = useNavigate();
   const [available, setAvailable] = useState(true);
-  const [liveDialogOpen, setLiveDialogOpen] = useState(false);
   const [selectedStat, setSelectedStat] = useState<Stat | null>(null);
   const { user } = useAuth();
   const { data: analytics, isLoading } = useSellerAnalytics();
@@ -88,29 +89,13 @@ export default function Sell() {
           <Button
             size="lg"
             className="w-full rounded-2xl bg-live text-live-foreground hover:bg-live/90 h-14 text-base font-semibold"
-            onClick={() => setLiveDialogOpen(true)}
+            onClick={() => navigate("/live/broadcast")}
           >
             <Radio className="h-5 w-5" />
             Go Live
           </Button>
         </motion.div>
 
-        <Dialog open={liveDialogOpen} onOpenChange={setLiveDialogOpen}>
-          <DialogContent className="rounded-2xl max-w-sm mx-auto">
-            <DialogHeader className="space-y-3">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                <Video className="h-6 w-6 text-primary" />
-              </div>
-              <DialogTitle className="text-center text-xl">Coming Soon</DialogTitle>
-              <DialogDescription className="text-center text-sm leading-relaxed">
-                Live streaming is on its way — a new way to deepen your connection with buyers and the community. Take them along your bakes, tour your coop, and more. We believe that our connection to food and each other is vital for our health and community.
-              </DialogDescription>
-            </DialogHeader>
-            <Button className="w-full rounded-xl mt-2" onClick={() => setLiveDialogOpen(false)}>
-              Got It
-            </Button>
-          </DialogContent>
-        </Dialog>
 
         {/* Analytics */}
         <div>

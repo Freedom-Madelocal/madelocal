@@ -5,7 +5,10 @@ import {
   MapPin, ExternalLink, Navigation, Copy,
 } from "lucide-react";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import MuxPlayer from "@mux/mux-player-react";
 import { useSellerById } from "@/hooks/use-sellers";
+import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +20,20 @@ export default function SellerProfile() {
   const { data: seller, isLoading } = useSellerById(id);
   const [following, setFollowing] = useState(false);
   const [showContact, setShowContact] = useState(false);
+
+  // Pinned video
+  const { data: pinnedVideo } = useQuery({
+    queryKey: ["pinned-video", id],
+    enabled: !!id,
+    queryFn: async () => {
+      const { data } = await (supabase.from("pinned_videos" as any) as any)
+        .select("mux_playback_id, duration_seconds")
+        .eq("seller_id", id)
+        .maybeSingle();
+      return data as { mux_playback_id: string; duration_seconds: number | null } | null;
+    },
+  });
+
 
   if (isLoading) {
     return (
@@ -93,6 +110,23 @@ export default function SellerProfile() {
             <p className="mt-2 text-sm leading-relaxed text-foreground">
               {seller.bio}
             </p>
+          </section>
+        )}
+
+        {/* Pinned Video */}
+        {pinnedVideo?.mux_playback_id && (
+          <section className="py-4">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              Pinned Video
+            </h2>
+            <div className="mt-3 overflow-hidden rounded-2xl border">
+              <MuxPlayer
+                playbackId={pinnedVideo.mux_playback_id}
+                streamType="on-demand"
+                autoPlay={false}
+                className="w-full aspect-video"
+              />
+            </div>
           </section>
         )}
 

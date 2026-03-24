@@ -10,6 +10,8 @@ import Following from "./pages/Following";
 import Sell from "./pages/Sell";
 import Profile from "./pages/Profile";
 import SellerProfile from "./pages/SellerProfile";
+import LiveBroadcast from "./pages/LiveBroadcast";
+import LiveViewer from "./pages/LiveViewer";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import SplashGate from "./components/onboarding/SplashGate";
@@ -31,6 +33,8 @@ function AppRoutes() {
         <Route path="/sell" element={<Sell />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/seller/:id" element={<SellerProfile />} />
+        <Route path="/live/broadcast" element={<LiveBroadcast />} />
+        <Route path="/live/:sellerId" element={<LiveViewer />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="*" element={<NotFound />} />
