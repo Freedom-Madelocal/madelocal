@@ -6,16 +6,26 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
-const stats = [
-  { label: "Profile Views", value: "1,247", icon: Eye, change: "+12%" },
-  { label: "Search Appearances", value: "3,891", icon: Search, change: "+8%" },
-  { label: "Contact Clicks", value: "342", icon: MousePointerClick, change: "+23%" },
-  { label: "Followers", value: "234", icon: Users, change: "+5" },
+interface Stat {
+  label: string;
+  value: string;
+  icon: typeof Eye;
+  change: string;
+  description: string;
+  extra?: { label: string; value: string };
+}
+
+const stats: Stat[] = [
+  { label: "Profile Views", value: "1,247", icon: Eye, change: "+12%", description: "Tracks how many people spent longer than 2 seconds on your profile." },
+  { label: "Search Appearances", value: "3,891", icon: Search, change: "+8%", description: "Shows how many times your profile or listing appeared in a search." },
+  { label: "Contact Clicks", value: "342", icon: MousePointerClick, change: "+23%", description: "Shows how many people clicked the button to get ahold of you. When marketplace settings are enabled, this metric becomes \"Transactions\"." },
+  { label: "Followers", value: "234", icon: Users, change: "+5", description: "Shows how many people are following you. Engaged followers interacted with your profile, listings, or videos in the last 30 days.", extra: { label: "Engaged (30d)", value: "89" } },
 ];
 
 export default function Sell() {
   const [available, setAvailable] = useState(true);
   const [liveDialogOpen, setLiveDialogOpen] = useState(false);
+  const [selectedStat, setSelectedStat] = useState<Stat | null>(null);
 
   return (
     <div className="min-h-screen pb-20">
@@ -86,7 +96,10 @@ export default function Sell() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
               >
-                <Card className="rounded-2xl border">
+                <Card
+                  className="rounded-2xl border cursor-pointer hover:border-primary/30 transition-colors"
+                  onClick={() => setSelectedStat(stat)}
+                >
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <stat.icon className="h-4 w-4 text-muted-foreground" />
@@ -100,6 +113,34 @@ export default function Sell() {
             ))}
           </div>
         </div>
+        {/* Stat Detail Dialog */}
+        <Dialog open={!!selectedStat} onOpenChange={() => setSelectedStat(null)}>
+          <DialogContent className="rounded-2xl max-w-sm mx-auto">
+            <DialogHeader className="space-y-3">
+              {selectedStat && (
+                <>
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                    <selectedStat.icon className="h-6 w-6 text-primary" />
+                  </div>
+                  <DialogTitle className="text-center text-xl">{selectedStat.label}</DialogTitle>
+                  <p className="text-center text-3xl font-bold text-foreground">{selectedStat.value}</p>
+                  <DialogDescription className="text-center text-sm leading-relaxed">
+                    {selectedStat.description}
+                  </DialogDescription>
+                  {selectedStat.extra && (
+                    <div className="rounded-xl bg-muted/50 p-3 flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">{selectedStat.extra.label}</span>
+                      <span className="text-lg font-bold text-foreground">{selectedStat.extra.value}</span>
+                    </div>
+                  )}
+                </>
+              )}
+            </DialogHeader>
+            <Button className="w-full rounded-xl mt-2" onClick={() => setSelectedStat(null)}>
+              Close
+            </Button>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );
