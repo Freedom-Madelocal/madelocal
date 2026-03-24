@@ -35,7 +35,7 @@ export function useLiveComments(streamId: string | null) {
               user_id: c.user_id,
               content: c.content,
               created_at: c.created_at,
-              user_name: c.profiles?.full_name || "Viewer",
+              user_name: c.profiles?.name || "Viewer",
               avatar_url: c.profiles?.avatar_url,
             }))
           );
