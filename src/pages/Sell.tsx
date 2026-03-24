@@ -6,11 +6,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
-const stats = [
-  { label: "Profile Views", value: "1,247", icon: Eye, change: "+12%" },
-  { label: "Search Appearances", value: "3,891", icon: Search, change: "+8%" },
-  { label: "Contact Clicks", value: "342", icon: MousePointerClick, change: "+23%" },
-  { label: "Followers", value: "234", icon: Users, change: "+5" },
+interface Stat {
+  label: string;
+  value: string;
+  icon: typeof Eye;
+  change: string;
+  description: string;
+  extra?: { label: string; value: string };
+}
+
+const stats: Stat[] = [
+  { label: "Profile Views", value: "1,247", icon: Eye, change: "+12%", description: "Tracks how many people spent longer than 2 seconds on your profile." },
+  { label: "Search Appearances", value: "3,891", icon: Search, change: "+8%", description: "Shows how many times your profile or listing appeared in a search." },
+  { label: "Contact Clicks", value: "342", icon: MousePointerClick, change: "+23%", description: "Shows how many people clicked the button to get ahold of you. When marketplace settings are enabled, this metric becomes \"Transactions\"." },
+  { label: "Followers", value: "234", icon: Users, change: "+5", description: "Shows how many people are following you. Engaged followers interacted with your profile, listings, or videos in the last 30 days.", extra: { label: "Engaged (30d)", value: "89" } },
 ];
 
 export default function Sell() {
