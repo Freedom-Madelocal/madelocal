@@ -25,6 +25,7 @@ const stats: Stat[] = [
 export default function Sell() {
   const [available, setAvailable] = useState(true);
   const [liveDialogOpen, setLiveDialogOpen] = useState(false);
+  const [selectedStat, setSelectedStat] = useState<Stat | null>(null);
 
   return (
     <div className="min-h-screen pb-20">
