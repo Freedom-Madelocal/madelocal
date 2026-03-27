@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
+import { usePushNotifications } from "@/hooks/use-push-notifications";
 import Index from "./pages/Index";
 import Following from "./pages/Following";
 import Sell from "./pages/Sell";
@@ -21,6 +22,7 @@ const queryClient = new QueryClient();
 
 function AppRoutes() {
   const { user, loading } = useAuth();
+  usePushNotifications();
 
   if (loading) return null;
 
