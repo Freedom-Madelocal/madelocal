@@ -73,7 +73,7 @@ export function useSellers(
         .eq("is_active", true);
 
       if (listingsError) throw listingsError;
-      const typedListings = (allListings ?? []) as Listing[];
+      const typedListings = (allListings ?? []) as unknown as Listing[];
       if (!typedListings.length) return [];
 
       // Group listings by seller_id
@@ -176,7 +176,7 @@ export function useSellerById(sellerId: string | undefined) {
         .select("*")
         .eq("seller_id", sellerId!);
 
-      const typedListings = (listings ?? []) as Listing[];
+      const typedListings = (listings ?? []) as unknown as Listing[];
 
       // Try to get profile
       let profile: any = null;
@@ -233,8 +233,8 @@ export function useCategories() {
         .select("*");
 
       if (error) throw error;
-      return ((data ?? []) as Category[])
-        .filter((c) => c.is_active && !c.hide_from_explore)
+      return ((data ?? []) as unknown as Category[])
+        .filter((c) => c.is_active !== false && !c.hide_from_explore)
         .sort((a, b) => a.sort_order - b.sort_order);
     },
   });
