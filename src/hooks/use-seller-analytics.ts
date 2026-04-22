@@ -18,7 +18,13 @@ export function useSellerAnalytics() {
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: true,
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke("get-seller-analytics");
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) throw new Error("Not authenticated");
+
+      const { data, error } = await supabase.functions.invoke("get-seller-analytics", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (error) throw error;
       return data as SellerAnalytics;
     },

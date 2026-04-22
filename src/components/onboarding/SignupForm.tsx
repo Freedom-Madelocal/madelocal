@@ -55,7 +55,7 @@ export default function SignupForm({ selectedCategories, location, onComplete }:
           sms_consent: smsConsent,
           sms_consent_at: smsConsent ? new Date().toISOString() : null,
           onboarding_completed: true,
-        }).eq("id", authData.user.id);
+        } as never).eq("id", authData.user.id);
 
         // Save category preferences
         if (selectedCategories.length > 0) {
