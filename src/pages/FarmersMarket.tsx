@@ -4,7 +4,7 @@ import { ArrowLeft, MapPin, Navigation, Globe, Phone, CloudRain } from "lucide-r
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useFarmersMarketsMP } from "@/hooks/use-farmers-markets-mp";
-import { useLocation } from "@/hooks/use-location";
+import { useUserLocation } from "@/hooks/use-location";
 
 function distanceMiles(lat1: number, lon1: number, lat2: number, lon2: number) {
   const R = 3958.8;
@@ -35,7 +35,7 @@ const FarmersMarket = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { data: markets, isLoading } = useFarmersMarketsMP();
-  const { location } = useLocation();
+  const { location } = useUserLocation();
 
   const market = useMemo(
     () => markets?.find((m) => m.slug === slug || m.id === slug),
@@ -45,8 +45,8 @@ const FarmersMarket = () => {
   const distance = useMemo(() => {
     if (!market || !location) return null;
     return distanceMiles(
-      location.latitude,
-      location.longitude,
+      location.lat,
+      location.lng,
       market.latitude,
       market.longitude
     );

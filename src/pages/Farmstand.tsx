@@ -4,7 +4,7 @@ import { ArrowLeft, MapPin, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useFarmstandsMP } from "@/hooks/use-farmstands-mp";
-import { useLocation } from "@/hooks/use-location";
+import { useUserLocation } from "@/hooks/use-location";
 
 function distanceMiles(lat1: number, lon1: number, lat2: number, lon2: number) {
   const R = 3958.8;
@@ -21,7 +21,7 @@ const Farmstand = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: farmstands, isLoading } = useFarmstandsMP();
-  const { location } = useLocation();
+  const { location } = useUserLocation();
 
   const farmstand = useMemo(
     () => farmstands?.find((f) => f.id === id),
@@ -31,8 +31,8 @@ const Farmstand = () => {
   const distance = useMemo(() => {
     if (!farmstand || !location) return null;
     return distanceMiles(
-      location.latitude,
-      location.longitude,
+      location.lat,
+      location.lng,
       farmstand.latitude,
       farmstand.longitude
     );
