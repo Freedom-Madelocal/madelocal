@@ -59,7 +59,7 @@ export function ListingCard({ row, distance, index = 0 }: Props) {
               className={cn(
                 "absolute right-2 top-2 gap-1 text-xs",
                 isLowStock
-                  ? "bg-amber-500 text-white hover:bg-amber-500"
+                  ? "bg-destructive text-destructive-foreground hover:bg-destructive"
                   : "bg-background/90 text-foreground hover:bg-background/90"
               )}
             >

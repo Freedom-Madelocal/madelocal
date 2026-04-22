@@ -16,6 +16,10 @@ import LiveViewer from "./pages/LiveViewer";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import SplashGate from "./components/onboarding/SplashGate";
+import ListingDetail from "./pages/ListingDetail";
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import CheckoutSuccess from "./pages/CheckoutSuccess";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +39,10 @@ function AppRoutes() {
         <Route path="/sell" element={<Sell />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/seller/:id" element={<SellerProfile />} />
+        <Route path="/listing/:id" element={<ListingDetail />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/checkout/success" element={<CheckoutSuccess />} />
         <Route path="/live/broadcast" element={<LiveBroadcast />} />
         <Route path="/live/:sellerId" element={<LiveViewer />} />
         <Route path="/auth" element={<Auth />} />
