@@ -17,6 +17,8 @@ import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import SplashGate from "./components/onboarding/SplashGate";
 import ListingDetail from "./pages/ListingDetail";
+import Farmstand from "./pages/Farmstand";
+import FarmersMarket from "./pages/FarmersMarket";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
@@ -40,6 +42,8 @@ function AppRoutes() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/seller/:id" element={<SellerProfile />} />
         <Route path="/listing/:id" element={<ListingDetail />} />
+        <Route path="/farmstand/:id" element={<Farmstand />} />
+        <Route path="/market/:slug" element={<FarmersMarket />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/checkout/success" element={<CheckoutSuccess />} />
