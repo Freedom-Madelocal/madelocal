@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useEffect } from "react";
 import { Settings, ChevronRight, Heart, Crown, Bell, MapPin, LogOut, Sparkles } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -34,10 +35,11 @@ export default function Profile() {
     navigate("/onboarding", { replace: true });
   };
 
-  if (!user) {
-    navigate("/auth");
-    return null;
-  }
+  useEffect(() => {
+    if (!user) navigate("/auth", { replace: true });
+  }, [user, navigate]);
+
+  if (!user) return null;
 
   const displayName = profile?.name || user.user_metadata?.name || user.email?.split("@")[0] || "User";
   const initials = displayName.slice(0, 2).toUpperCase();
