@@ -79,8 +79,9 @@ export default function SellerProfile() {
           <ArrowLeft className="h-5 w-5 text-foreground" />
         </button>
 
-        <div className="absolute bottom-4 left-4 right-4">
+        <div className="absolute bottom-4 left-4 right-4 space-y-2">
           <h1 className="text-2xl font-bold text-primary-foreground">{seller.name}</h1>
+          {id && <UserBadges userId={id} size="md" />}
         </div>
       </div>
 
