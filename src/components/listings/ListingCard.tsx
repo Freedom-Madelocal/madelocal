@@ -4,6 +4,7 @@ import { MapPin, Truck, AlertCircle, Package } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { MarketplaceListingRow } from "@/hooks/use-marketplace-listings";
+import { UserBadges } from "@/components/badges/UserBadges";
 
 interface Props {
   row: MarketplaceListingRow;
@@ -94,6 +95,8 @@ export function ListingCard({ row, distance, index = 0 }: Props) {
               </>
             )}
           </div>
+
+          <UserBadges userId={row.seller_id} size="sm" max={2} className="mt-1.5" />
 
           {offersDelivery && (
             <div className="mt-2 flex items-center gap-1 text-[11px] text-primary">
