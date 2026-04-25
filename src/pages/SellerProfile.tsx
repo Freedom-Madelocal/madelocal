@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { UserBadges } from "@/components/badges/UserBadges";
 
 export default function SellerProfile() {
   const { id } = useParams();
