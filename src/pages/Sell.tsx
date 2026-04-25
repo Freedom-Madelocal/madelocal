@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Radio, Eye, Search, MousePointerClick, Users } from "lucide-react";
+import { Radio, Eye, Search, MousePointerClick, Users, Sparkles, PlusCircle } from "lucide-react";
 import { useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSellerAnalytics } from "@/hooks/use-seller-analytics";
 import { useAuth } from "@/hooks/use-auth";
+import { useSellerListingsCount } from "@/hooks/use-seller-listings-count";
+
+const CREATE_LISTING_URL = "https://madelocal.app/sell/new";
 
 interface Stat {
   label: string;
@@ -54,8 +57,65 @@ export default function Sell() {
   const [selectedStat, setSelectedStat] = useState<Stat | null>(null);
   const { user } = useAuth();
   const { data: analytics, isLoading } = useSellerAnalytics();
+  const { data: listingsCount, isLoading: countLoading } = useSellerListingsCount();
 
   const stats = buildStats(analytics);
+  const hasEverListed = (listingsCount ?? 0) > 0;
+
+  // Gate dashboard until the seller has created at least one listing (active or not).
+  if (countLoading) {
+    return (
+      <div className="min-h-screen pb-20">
+        <main className="mx-auto max-w-lg px-4 pt-10 space-y-4">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-32 w-full rounded-2xl" />
+          <Skeleton className="h-14 w-full rounded-2xl" />
+        </main>
+      </div>
+    );
+  }
+
+  if (!hasEverListed) {
+    return (
+      <div className="min-h-screen pb-20">
+        <main className="mx-auto flex max-w-lg flex-col items-center px-6 pt-16 text-center">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 18 }}
+            className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10"
+          >
+            <Sparkles className="h-10 w-10 text-primary" />
+          </motion.div>
+          <h1 className="font-display text-3xl font-bold tracking-tight text-foreground">
+            Ready to Sell?
+          </h1>
+          <p className="mt-3 text-base text-muted-foreground">
+            Let's create your first listing.
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground/80">
+            Once you publish, your Seller Dashboard unlocks — track views, go live,
+            and watch your local community discover what you grow or make.
+          </p>
+
+          <motion.div whileTap={{ scale: 0.98 }} className="mt-8 w-full">
+            <Button
+              size="lg"
+              className="h-14 w-full rounded-2xl text-base font-semibold"
+              onClick={() => window.open(CREATE_LISTING_URL, "_blank")}
+            >
+              <PlusCircle className="h-5 w-5" />
+              Create your first listing
+            </Button>
+          </motion.div>
+
+          <p className="mt-4 text-xs text-muted-foreground">
+            Listings are created on madelocal.app — we'll pull it in automatically.
+          </p>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pb-20">
