@@ -43,7 +43,7 @@ const ListingDetail = () => {
   const stockCount = row.stock_count ?? null;
   const isLowStock = isLimited && stockCount != null && stockCount <= 3 && stockCount > 0;
   const maxQty = isLimited && stockCount != null ? Math.max(stockCount, 1) : 99;
-  const marketplaceEnabled = row.public_profiles?.marketplace_enabled === true && Number(row.price) > 0;
+  const marketplaceEnabled = Number(row.price) > 0;
   const offersDelivery = row.public_profiles?.delivery_price != null;
 
   const handleAddToCart = () => {

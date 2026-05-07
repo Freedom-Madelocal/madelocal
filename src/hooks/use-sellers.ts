@@ -43,6 +43,7 @@ export interface SellerWithListings extends Profile {
   listings: Listing[];
   categoryName?: string;
   distance?: number;
+  contact_url?: string | null;
 }
 
 function getDistanceMiles(
@@ -196,12 +197,13 @@ export function useSellerById(sellerId: string | undefined) {
       return {
         id: sellerId!,
         name: profile?.shop_name || profile?.full_name || profile?.name || "Local Seller",
-        email: null,
-        phone: null,
+        email: profile?.email ?? null,
+        phone: profile?.contact_phone ?? profile?.phone ?? null,
         bio: profile?.bio ?? null,
         avatar_url: profile?.shop_avatar_url ?? profile?.avatar_url ?? firstImage ?? null,
         venmo_link: profile?.venmo_link ?? null,
-        address: null, // Hidden until shared via messaging
+        contact_url: profile?.contact_url ?? null,
+        address: null,
         latitude: profile?.latitude ?? null,
         longitude: profile?.longitude ?? null,
         sms_consent: null,
@@ -209,7 +211,7 @@ export function useSellerById(sellerId: string | undefined) {
         updated_at: profile?.updated_at ?? typedListings[0]?.updated_at ?? "",
         listings: typedListings,
         categoryName: typedListings[0]?.category,
-      } as SellerWithListings;
+      } as SellerWithListings & { contact_url: string | null };
     },
   });
 }

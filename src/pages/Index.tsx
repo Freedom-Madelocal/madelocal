@@ -17,7 +17,7 @@ import { useUserLocation } from "@/hooks/use-location";
 import { useCart } from "@/hooks/use-cart-mp";
 import logoFull from "@/assets/logo-full.png";
 
-const RADIUS_MILES = 5;
+const RADIUS_OPTIONS = [5, 10, 25, 50];
 
 function distMiles(lat1: number, lng1: number, lat2: number, lng2: number) {
   const R = 3959;
@@ -35,6 +35,8 @@ const Index = () => {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [segment, setSegment] = useState<Segment>("listings");
+  const [radiusIdx, setRadiusIdx] = useState(0);
+  const radiusMiles = RADIUS_OPTIONS[radiusIdx];
   const { location, loading: locLoading, requestLocation } = useUserLocation();
   const { itemCount } = useCart();
 
@@ -67,7 +69,7 @@ const Index = () => {
           !search ||
           row.title.toLowerCase().includes(q) ||
           row.description?.toLowerCase().includes(q);
-        const matchesLoc = userLat == null || distance == null || distance <= RADIUS_MILES;
+        const matchesLoc = userLat == null || distance == null || distance <= radiusMiles;
         return matchesCat && matchesSearch && matchesLoc;
       })
       .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
@@ -88,7 +90,7 @@ const Index = () => {
           !search ||
           row.name.toLowerCase().includes(q) ||
           row.description?.toLowerCase().includes(q);
-        const matchesLoc = userLat == null || distance == null || distance <= RADIUS_MILES;
+        const matchesLoc = userLat == null || distance == null || distance <= radiusMiles;
         return matchesSearch && matchesLoc;
       })
       .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
@@ -109,7 +111,7 @@ const Index = () => {
           !search ||
           row.name.toLowerCase().includes(q) ||
           row.city.toLowerCase().includes(q);
-        const matchesLoc = userLat == null || distance == null || distance <= RADIUS_MILES;
+        const matchesLoc = userLat == null || distance == null || distance <= radiusMiles;
         return matchesSearch && matchesLoc;
       })
       .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
@@ -147,7 +149,10 @@ const Index = () => {
                   "shrink-0 gap-1.5 rounded-full",
                   location && "border-primary/30 bg-primary/10 text-primary hover:bg-primary/15"
                 )}
-                onClick={requestLocation}
+                onClick={() => {
+                  if (!location) requestLocation();
+                  setRadiusIdx((i) => (i + 1) % RADIUS_OPTIONS.length);
+                }}
                 disabled={locLoading}
               >
                 {locLoading ? (
@@ -155,7 +160,7 @@ const Index = () => {
                 ) : (
                   <MapPin className="h-3.5 w-3.5" />
                 )}
-                {RADIUS_MILES} mi
+                {radiusMiles} mi
               </Button>
             </div>
           </div>
