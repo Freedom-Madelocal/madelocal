@@ -149,7 +149,10 @@ const Index = () => {
                   "shrink-0 gap-1.5 rounded-full",
                   location && "border-primary/30 bg-primary/10 text-primary hover:bg-primary/15"
                 )}
-                onClick={requestLocation}
+                onClick={() => {
+                  if (!location) requestLocation();
+                  setRadiusIdx((i) => (i + 1) % RADIUS_OPTIONS.length);
+                }}
                 disabled={locLoading}
               >
                 {locLoading ? (
