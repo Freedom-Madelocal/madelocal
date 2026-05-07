@@ -17,7 +17,7 @@ import { useUserLocation } from "@/hooks/use-location";
 import { useCart } from "@/hooks/use-cart-mp";
 import logoFull from "@/assets/logo-full.png";
 
-const RADIUS_MILES = 5;
+const RADIUS_OPTIONS = [5, 10, 25, 50];
 
 function distMiles(lat1: number, lng1: number, lat2: number, lng2: number) {
   const R = 3959;
@@ -35,6 +35,8 @@ const Index = () => {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [segment, setSegment] = useState<Segment>("listings");
+  const [radiusIdx, setRadiusIdx] = useState(0);
+  const radiusMiles = RADIUS_OPTIONS[radiusIdx];
   const { location, loading: locLoading, requestLocation } = useUserLocation();
   const { itemCount } = useCart();
 
