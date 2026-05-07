@@ -97,7 +97,11 @@ export default function SellerProfile() {
             <Heart className={cn("h-4 w-4", following && "fill-current")} />
             {following ? "Following" : "Follow"}
           </Button>
-          <Button variant="outline" className="flex-1 rounded-xl">
+          <Button
+            variant="outline"
+            className="flex-1 rounded-xl"
+            onClick={() => setShowContact((v) => !v)}
+          >
             <MessageCircle className="h-4 w-4" />
             Message
           </Button>
@@ -192,13 +196,35 @@ export default function SellerProfile() {
               animate={{ opacity: 1, height: "auto" }}
               className="mt-3 space-y-2 overflow-hidden"
             >
-              <button
-                onClick={() => handleCopy(seller.name, "Name")}
-                className="flex w-full items-center gap-3 rounded-xl border bg-card p-4 transition-colors hover:bg-accent"
-              >
-                <Copy className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Copy Contact Info</span>
-              </button>
+              {seller.phone && (
+                <a
+                  href={`sms:${seller.phone}`}
+                  className="flex w-full items-center gap-3 rounded-xl border bg-card p-4 transition-colors hover:bg-accent"
+                >
+                  <MessageCircle className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Text {seller.phone}</span>
+                </a>
+              )}
+              {seller.email && (
+                <a
+                  href={`mailto:${seller.email}`}
+                  className="flex w-full items-center gap-3 rounded-xl border bg-card p-4 transition-colors hover:bg-accent"
+                >
+                  <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Email {seller.email}</span>
+                </a>
+              )}
+              {(seller as any).contact_url && (
+                <a
+                  href={(seller as any).contact_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex w-full items-center gap-3 rounded-xl border bg-card p-4 transition-colors hover:bg-accent"
+                >
+                  <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Open contact link</span>
+                </a>
+              )}
               {seller.venmo_link && (
                 <a
                   href={seller.venmo_link.startsWith("http") ? seller.venmo_link : `https://venmo.com/${seller.venmo_link.replace("@", "")}`}
@@ -209,6 +235,15 @@ export default function SellerProfile() {
                   <ExternalLink className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-medium">Pay via Venmo</span>
                 </a>
+              )}
+              {!seller.phone && !seller.email && !(seller as any).contact_url && !seller.venmo_link && (
+                <button
+                  onClick={() => handleCopy(seller.name, "Name")}
+                  className="flex w-full items-center gap-3 rounded-xl border bg-card p-4 transition-colors hover:bg-accent"
+                >
+                  <Copy className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Copy seller name</span>
+                </button>
               )}
             </motion.div>
           )}
