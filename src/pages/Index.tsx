@@ -69,7 +69,7 @@ const Index = () => {
           !search ||
           row.title.toLowerCase().includes(q) ||
           row.description?.toLowerCase().includes(q);
-        const matchesLoc = userLat == null || distance == null || distance <= RADIUS_MILES;
+        const matchesLoc = userLat == null || distance == null || distance <= radiusMiles;
         return matchesCat && matchesSearch && matchesLoc;
       })
       .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
@@ -90,7 +90,7 @@ const Index = () => {
           !search ||
           row.name.toLowerCase().includes(q) ||
           row.description?.toLowerCase().includes(q);
-        const matchesLoc = userLat == null || distance == null || distance <= RADIUS_MILES;
+        const matchesLoc = userLat == null || distance == null || distance <= radiusMiles;
         return matchesSearch && matchesLoc;
       })
       .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
@@ -111,7 +111,7 @@ const Index = () => {
           !search ||
           row.name.toLowerCase().includes(q) ||
           row.city.toLowerCase().includes(q);
-        const matchesLoc = userLat == null || distance == null || distance <= RADIUS_MILES;
+        const matchesLoc = userLat == null || distance == null || distance <= radiusMiles;
         return matchesSearch && matchesLoc;
       })
       .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
@@ -157,7 +157,7 @@ const Index = () => {
                 ) : (
                   <MapPin className="h-3.5 w-3.5" />
                 )}
-                {RADIUS_MILES} mi
+                {radiusMiles} mi
               </Button>
             </div>
           </div>
