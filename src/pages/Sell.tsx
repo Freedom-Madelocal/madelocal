@@ -11,7 +11,7 @@ import { useSellerAnalytics } from "@/hooks/use-seller-analytics";
 import { useAuth } from "@/hooks/use-auth";
 import { useSellerListingsCount } from "@/hooks/use-seller-listings-count";
 
-const CREATE_LISTING_URL = "https://madelocal.app/sell/new";
+
 
 interface Stat {
   label: string;
@@ -102,7 +102,7 @@ export default function Sell() {
             <Button
               size="lg"
               className="h-14 w-full rounded-2xl text-base font-semibold"
-              onClick={() => window.open(CREATE_LISTING_URL, "_blank")}
+              onClick={() => navigate("/sell/new")}
             >
               <PlusCircle className="h-5 w-5" />
               Create your first listing
@@ -110,7 +110,7 @@ export default function Sell() {
           </motion.div>
 
           <p className="mt-4 text-xs text-muted-foreground">
-            Listings are created on madelocal.app — we'll pull it in automatically.
+            Takes about a minute. You can edit or unpublish anytime.
           </p>
         </main>
       </div>

@@ -9,6 +9,7 @@ import { usePushNotifications } from "@/hooks/use-push-notifications";
 import Index from "./pages/Index";
 import Following from "./pages/Following";
 import Sell from "./pages/Sell";
+import CreateListing from "./pages/CreateListing";
 import Profile from "./pages/Profile";
 import SellerProfile from "./pages/SellerProfile";
 import LiveBroadcast from "./pages/LiveBroadcast";
@@ -39,6 +40,7 @@ function AppRoutes() {
         <Route path="/discover" element={<Index />} />
         <Route path="/following" element={<Following />} />
         <Route path="/sell" element={<Sell />} />
+        <Route path="/sell/new" element={<CreateListing />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/seller/:id" element={<SellerProfile />} />
         <Route path="/listing/:id" element={<ListingDetail />} />
