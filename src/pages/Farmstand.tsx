@@ -110,6 +110,16 @@ const Farmstand = () => {
           </Badge>
         )}
 
+        {farmstand.food_types && farmstand.food_types.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {farmstand.food_types.map((t) => (
+              <Badge key={t} variant="secondary" className="text-xs capitalize">
+                {t.replace(/_/g, " ")}
+              </Badge>
+            ))}
+          </div>
+        )}
+
         {farmstand.description && (
           <div className="rounded-2xl border bg-card p-4">
             <h2 className="mb-2 text-sm font-semibold">About</h2>
