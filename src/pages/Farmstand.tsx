@@ -24,7 +24,7 @@ const Farmstand = () => {
   const { location } = useUserLocation();
 
   const farmstand = useMemo(
-    () => farmstands?.find((f) => f.id === id),
+    () => farmstands?.find((f) => f.slug === id || f.id === id),
     [farmstands, id]
   );
 
@@ -104,7 +104,7 @@ const Farmstand = () => {
           )}
         </div>
 
-        {!farmstand.claimed_by && (
+        {!farmstand.claimed && (
           <Badge variant="outline" className="border-dashed">
             Unclaimed — community listed
           </Badge>
