@@ -22,7 +22,7 @@ export function FarmstandCard({ row, distance, index = 0 }: Props) {
       transition={{ duration: 0.3, delay: Math.min(index * 0.04, 0.3) }}
     >
       <Link
-        to={`/farmstand/${row.id}`}
+        to={`/farmstand/${row.slug ?? row.id}`}
         className="block overflow-hidden rounded-2xl border bg-card shadow-sm transition-all hover:shadow-md active:scale-[0.99]"
       >
         <div className="relative aspect-square w-full overflow-hidden bg-muted">
@@ -33,7 +33,7 @@ export function FarmstandCard({ row, distance, index = 0 }: Props) {
               <Sprout className="h-10 w-10 text-primary/60" />
             </div>
           )}
-          {!row.claimed_by && (
+          {!row.claimed && (
             <Badge variant="secondary" className="absolute left-2 top-2 bg-background/90 text-xs">
               Unclaimed
             </Badge>

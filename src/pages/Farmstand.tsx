@@ -24,7 +24,7 @@ const Farmstand = () => {
   const { location } = useUserLocation();
 
   const farmstand = useMemo(
-    () => farmstands?.find((f) => f.id === id),
+    () => farmstands?.find((f) => f.slug === id || f.id === id),
     [farmstands, id]
   );
 
@@ -104,10 +104,20 @@ const Farmstand = () => {
           )}
         </div>
 
-        {!farmstand.claimed_by && (
+        {!farmstand.claimed && (
           <Badge variant="outline" className="border-dashed">
             Unclaimed — community listed
           </Badge>
+        )}
+
+        {farmstand.food_types && farmstand.food_types.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {farmstand.food_types.map((t) => (
+              <Badge key={t} variant="secondary" className="text-xs capitalize">
+                {t.replace(/_/g, " ")}
+              </Badge>
+            ))}
+          </div>
         )}
 
         {farmstand.description && (
