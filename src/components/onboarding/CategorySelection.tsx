@@ -14,6 +14,7 @@ interface Props {
   selectedCategories: string[];
   onToggle: (id: string) => void;
   onNext: () => void;
+  mode?: 'buyer' | 'seller';
 }
 
 function CategoryIcon({ name, className }: { name: string | null; className?: string }) {
@@ -23,7 +24,9 @@ function CategoryIcon({ name, className }: { name: string | null; className?: st
   return <Icon className={className} />;
 }
 
-export default function CategorySelection({ selectedCategories, onToggle, onNext }: Props) {
+export default function CategorySelection({ selectedCategories, onToggle, onNext, mode = 'buyer' }: Props) {
+  const heading = mode === 'seller' ? 'What do you sell or make?' : 'What are you looking for?';
+  const sub = mode === 'seller' ? 'Pick everything you offer' : "Select as many as you'd like";
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
@@ -53,7 +56,7 @@ export default function CategorySelection({ selectedCategories, onToggle, onNext
         animate={{ y: 0, opacity: 1 }}
         className="mb-2 text-3xl font-bold text-foreground"
       >
-        What are you looking for?
+        {heading}
       </motion.h2>
       <motion.p
         initial={{ y: 20, opacity: 0 }}
@@ -61,7 +64,7 @@ export default function CategorySelection({ selectedCategories, onToggle, onNext
         transition={{ delay: 0.1 }}
         className="mb-10 text-muted-foreground"
       >
-        Select as many as you'd like
+        {sub}
       </motion.p>
 
       <div className="mb-10 flex max-w-md flex-col items-center gap-4">

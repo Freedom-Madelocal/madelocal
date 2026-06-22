@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import SplashScreen from "@/components/onboarding/SplashScreen";
+import PathPicker from "@/components/onboarding/PathPicker";
 import CategorySelection from "@/components/onboarding/CategorySelection";
 import LocationPermission from "@/components/onboarding/LocationPermission";
 import SignupForm from "@/components/onboarding/SignupForm";
@@ -11,7 +12,17 @@ import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Onboarding() {
-  const { state, setStep, toggleCategory, setLocation, setNearbyCount } = useOnboarding();
+  const {
+    state,
+    setStep,
+    setMode,
+    toggleCategory,
+    setLocation,
+    setNearbyCount,
+    setNearbyBreakdown,
+    setShopName,
+    setReferralCode,
+  } = useOnboarding();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -19,7 +30,6 @@ export default function Onboarding() {
 
   const handleComplete = () => {
     setStep('done');
-    navigate('/discover', { replace: true });
   };
 
   const handleCompleteExisting = async () => {
@@ -27,11 +37,16 @@ export default function Onboarding() {
     setIsCompleting(true);
 
     try {
-      const updates: Record<string, any> = { onboarding_completed: true };
+      const updates: Record<string, unknown> = {
+        onboarding_completed: true,
+        account_type: state.mode,
+      };
       if (state.location) {
         updates.latitude = state.location.lat;
         updates.longitude = state.location.lng;
       }
+      if (state.mode === 'seller' && state.shopName) updates.shop_name = state.shopName;
+      if (state.referralCode) updates.referral_code = state.referralCode;
 
       const { error: clearError } = await supabase
         .from("buyer_categories")
@@ -53,22 +68,24 @@ export default function Onboarding() {
         .from("profiles")
         .update(updates as never)
         .or(`id.eq.${user.id},external_id.eq.${user.id}`);
-      if (profileError) throw profileError;
+      if (profileError && !/column .* does not exist/i.test(profileError.message)) {
+        console.warn('profile update warning', profileError.message);
+      }
 
       setStep('done');
-      navigate('/discover', { replace: true });
-    } catch (error: any) {
-      toast({
-        title: "Could not save onboarding",
-        description: error?.message ?? "Please try again",
-        variant: "destructive",
-      });
+      if (state.mode === 'seller') {
+        navigate('/sell/new?onboarding=1', { replace: true });
+      } else {
+        navigate('/onboarding/card-prompt', { replace: true });
+      }
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Please try again";
+      toast({ title: "Could not save onboarding", description: msg, variant: "destructive" });
     } finally {
       setIsCompleting(false);
     }
   };
 
-  // For authenticated users, after location step skip signup
   const handleLocationNext = async () => {
     if (user) {
       await handleCompleteExisting();
@@ -82,7 +99,12 @@ export default function Onboarding() {
       <AnimatePresence mode="wait">
         {state.step === 'splash' && (
           <motion.div key="splash" exit={{ opacity: 0, x: -100 }} transition={{ duration: 0.3 }}>
-            <SplashScreen onNext={() => setStep('categories')} />
+            <SplashScreen onNext={() => setStep('path')} />
+          </motion.div>
+        )}
+        {state.step === 'path' && (
+          <motion.div key="path" initial={{ opacity: 0, x: 100 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -100 }} transition={{ duration: 0.3 }}>
+            <PathPicker onPick={(m) => { setMode(m); setStep('categories'); }} />
           </motion.div>
         )}
         {state.step === 'categories' && (
@@ -91,6 +113,7 @@ export default function Onboarding() {
               selectedCategories={state.selectedCategories}
               onToggle={toggleCategory}
               onNext={() => setStep('location')}
+              mode={state.mode}
             />
           </motion.div>
         )}
@@ -101,7 +124,9 @@ export default function Onboarding() {
               onNext={handleLocationNext}
               nearbyCount={state.nearbyCount}
               setNearbyCount={setNearbyCount}
+              setNearbyBreakdown={setNearbyBreakdown}
               selectedCategories={state.selectedCategories}
+              mode={state.mode}
             />
           </motion.div>
         )}
@@ -110,6 +135,11 @@ export default function Onboarding() {
             <SignupForm
               selectedCategories={state.selectedCategories}
               location={state.location}
+              mode={state.mode}
+              shopName={state.shopName}
+              referralCode={state.referralCode}
+              setShopName={setShopName}
+              setReferralCode={setReferralCode}
               onComplete={handleComplete}
             />
           </motion.div>

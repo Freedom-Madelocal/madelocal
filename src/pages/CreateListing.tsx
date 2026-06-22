@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Loader2, Plus, X, ImagePlus } from "lucide-react";
 import { z } from "zod";
@@ -24,6 +24,8 @@ const schema = z.object({
 
 export default function CreateListing() {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const isOnboarding = params.get('onboarding') === '1';
   const { user } = useAuth();
   const { toast } = useToast();
   const qc = useQueryClient();
@@ -79,13 +81,22 @@ export default function CreateListing() {
         images: imageUrls.length ? imageUrls : null,
         is_active: true,
       };
-      const { error } = await supabase.from("listings").insert(payload as never);
+      const { data: inserted, error } = await supabase
+        .from("listings")
+        .insert(payload as never)
+        .select("id")
+        .single();
       if (error) throw error;
 
       await qc.invalidateQueries({ queryKey: ["seller", "listings-count", user.id] });
       await qc.invalidateQueries({ queryKey: ["marketplace", "listings", "active"] });
       toast({ title: "Listing published 🎉" });
-      navigate("/sell");
+      if (isOnboarding) {
+        const newId = (inserted as { id?: string } | null)?.id ?? '';
+        navigate(`/onboarding/pricing?listing=${newId}`, { replace: true });
+      } else {
+        navigate("/sell");
+      }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Something went wrong";
       toast({ title: "Couldn't publish", description: message, variant: "destructive" });
@@ -98,10 +109,18 @@ export default function CreateListing() {
     <div className="min-h-screen pb-32">
       <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-lg items-center gap-2 px-3 py-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full">
-            <ArrowLeft className="h-5 w-5" />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => isOnboarding ? navigate('/onboarding/card-prompt?after=skip-seller', { replace: true }) : navigate(-1)}
+            className="rounded-full"
+            aria-label={isOnboarding ? "Skip" : "Back"}
+          >
+            {isOnboarding ? <X className="h-5 w-5" /> : <ArrowLeft className="h-5 w-5" />}
           </Button>
-          <h1 className="font-display text-xl font-bold">New listing</h1>
+          <h1 className="font-display text-xl font-bold">
+            {isOnboarding ? "Your first listing" : "New listing"}
+          </h1>
         </div>
       </header>
 
