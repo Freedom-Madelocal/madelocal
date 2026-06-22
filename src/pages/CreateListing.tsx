@@ -109,10 +109,18 @@ export default function CreateListing() {
     <div className="min-h-screen pb-32">
       <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-lg items-center gap-2 px-3 py-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full">
-            <ArrowLeft className="h-5 w-5" />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => isOnboarding ? navigate('/onboarding/card-prompt?after=skip-seller', { replace: true }) : navigate(-1)}
+            className="rounded-full"
+            aria-label={isOnboarding ? "Skip" : "Back"}
+          >
+            {isOnboarding ? <X className="h-5 w-5" /> : <ArrowLeft className="h-5 w-5" />}
           </Button>
-          <h1 className="font-display text-xl font-bold">New listing</h1>
+          <h1 className="font-display text-xl font-bold">
+            {isOnboarding ? "Your first listing" : "New listing"}
+          </h1>
         </div>
       </header>
 

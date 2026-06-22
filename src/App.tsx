@@ -24,6 +24,10 @@ import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
 import NotFound from "./pages/NotFound";
+import PricingExplainer from "./pages/onboarding/PricingExplainer";
+import CardSetup from "./pages/onboarding/CardSetup";
+import CardPromptPage from "./pages/onboarding/CardPromptPage";
+import SellerSuccess from "./pages/onboarding/SellerSuccess";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +57,10 @@ function AppRoutes() {
         <Route path="/live/:sellerId" element={<LiveViewer />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/onboarding/pricing" element={<PricingExplainer />} />
+        <Route path="/onboarding/card" element={<CardSetup />} />
+        <Route path="/onboarding/card-prompt" element={<CardPromptPage />} />
+        <Route path="/onboarding/seller-success" element={<SellerSuccess />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       {user && <BottomNav />}
