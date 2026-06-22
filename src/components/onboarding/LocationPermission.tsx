@@ -31,6 +31,7 @@ export default function LocationPermission({
   const [userLoc, setUserLoc] = useState<{ lat: number; lng: number } | null>(null);
   const [neighbors, setNeighbors] = useState<NearbyProfile[]>([]);
   const [breakdown, setBreakdown] = useState<{ buyers: number; sellers: number }>({ buyers: 0, sellers: 0 });
+  const [neighborsLoading, setNeighborsLoading] = useState(false);
   const { data: sellers } = useSellers(userLoc);
   const { data: categories } = useCategories();
 
@@ -47,8 +48,18 @@ export default function LocationPermission({
     }
   }, [status, nearbyCount]);
 
+  const applyNeighbors = (data: NearbyProfile[]) => {
+    const buyers = data.filter(p => p.account_type === 'buyer' || p.account_type === 'both').length;
+    const sellersCount = data.filter(p => p.account_type === 'seller' || p.account_type === 'both').length;
+    setNeighbors(data);
+    setBreakdown({ buyers, sellers: sellersCount });
+    setNearbyCount(data.length);
+    setNearbyBreakdown?.(buyers, sellersCount, data);
+  };
+
   const fetchNeighbors = async (lat: number, lng: number) => {
-    // Try RPC with a hard timeout so a missing/slow RPC never hangs the UI.
+    setNeighborsLoading(true);
+    // 1) Try RPC with a short timeout so a missing/slow RPC never hangs the UI.
     try {
       const rpcPromise = supabase.rpc('nearby_profiles_v1' as never, {
         lat,
@@ -56,25 +67,39 @@ export default function LocationPermission({
         radius_miles: 25,
       } as never) as unknown as Promise<{ data: NearbyProfile[] | null; error: unknown }>;
       const timeoutPromise = new Promise<{ data: null; error: unknown }>((resolve) =>
-        setTimeout(() => resolve({ data: null, error: 'timeout' }), 4000)
+        setTimeout(() => resolve({ data: null, error: 'timeout' }), 2000)
       );
       const { data, error } = await Promise.race([rpcPromise, timeoutPromise]);
       if (!error && Array.isArray(data)) {
-        const buyers = data.filter(p => p.account_type === 'buyer' || p.account_type === 'both').length;
-        const sellersCount = data.filter(p => p.account_type === 'seller' || p.account_type === 'both').length;
-        setNeighbors(data);
-        setBreakdown({ buyers, sellers: sellersCount });
-        setNearbyCount(data.length);
-        setNearbyBreakdown?.(buyers, sellersCount, data);
+        applyNeighbors(data);
+        setNeighborsLoading(false);
         return;
       }
     } catch {
-      /* fall through */
+      /* fall through to fallback */
     }
-    setNeighbors([]);
-    setBreakdown({ buyers: 0, sellers: 0 });
-    setNearbyCount(0);
-    setNearbyBreakdown?.(0, 0, []);
+
+    // 2) Fallback: lightweight profiles select (name + account_type only — never addresses).
+    try {
+      const fbPromise = supabase
+        .from('profiles')
+        .select('id, full_name, avatar_url, account_type')
+        .limit(50) as unknown as Promise<{ data: NearbyProfile[] | null; error: unknown }>;
+      const fbTimeout = new Promise<{ data: null; error: unknown }>((resolve) =>
+        setTimeout(() => resolve({ data: null, error: 'timeout' }), 2000)
+      );
+      const { data, error } = await Promise.race([fbPromise, fbTimeout]);
+      if (!error && Array.isArray(data) && data.length > 0) {
+        applyNeighbors(data);
+        setNeighborsLoading(false);
+        return;
+      }
+    } catch {
+      /* fall through to empty state */
+    }
+
+    applyNeighbors([]);
+    setNeighborsLoading(false);
   };
 
   const requestLocation = () => {
@@ -91,7 +116,7 @@ export default function LocationPermission({
       }
     }, 12000);
     navigator.geolocation.getCurrentPosition(
-      async (pos) => {
+      (pos) => {
         if (settled) return;
         settled = true;
         clearTimeout(fallbackTimer);
@@ -99,7 +124,8 @@ export default function LocationPermission({
         onLocationGranted(latitude, longitude);
         setUserLoc({ lat: latitude, lng: longitude });
         if (mode === 'seller') {
-          await fetchNeighbors(latitude, longitude);
+          // Don't block the UI on the RPC — flip to granted now, load neighbors in the background.
+          void fetchNeighbors(latitude, longitude);
         } else {
           const count = Math.floor(Math.random() * 15) + 5;
           setNearbyCount(count);
@@ -177,12 +203,16 @@ export default function LocationPermission({
     : "Share your location so we can show you local food makers in your area";
 
   const grantedHeading = mode === 'seller'
-    ? (nearbyCount > 0 ? `${nearbyCount} neighbors nearby!` : "You're the first one here!")
+    ? (neighborsLoading
+        ? 'Looking for neighbors…'
+        : (nearbyCount > 0 ? `${nearbyCount} neighbors nearby!` : "You're the first one here!"))
     : `${nearbyCount} sellers nearby!`;
   const grantedSub = mode === 'seller'
-    ? (nearbyCount > 0
-        ? `${breakdown.buyers} buyer${breakdown.buyers === 1 ? '' : 's'} · ${breakdown.sellers} seller${breakdown.sellers === 1 ? '' : 's'} within 25 miles`
-        : "Be the first to bring fresh food to your area. Invite friends to grow your community.")
+    ? (neighborsLoading
+        ? 'Scanning your area for buyers and sellers'
+        : (nearbyCount > 0
+          ? `${breakdown.buyers} buyer${breakdown.buyers === 1 ? '' : 's'} · ${breakdown.sellers} seller${breakdown.sellers === 1 ? '' : 's'} within 25 miles`
+          : "Be the first to bring fresh food to your area. Invite friends to grow your community."))
     : "Within 10 miles of you selling what you're looking for";
 
   return (
