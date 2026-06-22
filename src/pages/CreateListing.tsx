@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Loader2, Plus, X, ImagePlus } from "lucide-react";
 import { z } from "zod";
@@ -24,6 +24,8 @@ const schema = z.object({
 
 export default function CreateListing() {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const isOnboarding = params.get('onboarding') === '1';
   const { user } = useAuth();
   const { toast } = useToast();
   const qc = useQueryClient();
@@ -85,7 +87,11 @@ export default function CreateListing() {
       await qc.invalidateQueries({ queryKey: ["seller", "listings-count", user.id] });
       await qc.invalidateQueries({ queryKey: ["marketplace", "listings", "active"] });
       toast({ title: "Listing published 🎉" });
-      navigate("/sell");
+      if (isOnboarding) {
+        navigate(`/onboarding/pricing?listing=${(data as { id?: string } | null)?.id ?? ''}`, { replace: true });
+      } else {
+        navigate("/sell");
+      }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Something went wrong";
       toast({ title: "Couldn't publish", description: message, variant: "destructive" });
