@@ -81,14 +81,19 @@ export default function CreateListing() {
         images: imageUrls.length ? imageUrls : null,
         is_active: true,
       };
-      const { error } = await supabase.from("listings").insert(payload as never);
+      const { data: inserted, error } = await supabase
+        .from("listings")
+        .insert(payload as never)
+        .select("id")
+        .single();
       if (error) throw error;
 
       await qc.invalidateQueries({ queryKey: ["seller", "listings-count", user.id] });
       await qc.invalidateQueries({ queryKey: ["marketplace", "listings", "active"] });
       toast({ title: "Listing published 🎉" });
       if (isOnboarding) {
-        navigate(`/onboarding/pricing?listing=${(data as { id?: string } | null)?.id ?? ''}`, { replace: true });
+        const newId = (inserted as { id?: string } | null)?.id ?? '';
+        navigate(`/onboarding/pricing?listing=${newId}`, { replace: true });
       } else {
         navigate("/sell");
       }
