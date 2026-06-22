@@ -48,13 +48,17 @@ export default function LocationPermission({
   }, [status, nearbyCount]);
 
   const fetchNeighbors = async (lat: number, lng: number) => {
-    // Try RPC first; fall back to silent if missing.
+    // Try RPC with a hard timeout so a missing/slow RPC never hangs the UI.
     try {
-      const { data, error } = await supabase.rpc('nearby_profiles_v1' as never, {
+      const rpcPromise = supabase.rpc('nearby_profiles_v1' as never, {
         lat,
         lng,
         radius_miles: 25,
-      } as never) as unknown as { data: NearbyProfile[] | null; error: unknown };
+      } as never) as unknown as Promise<{ data: NearbyProfile[] | null; error: unknown }>;
+      const timeoutPromise = new Promise<{ data: null; error: unknown }>((resolve) =>
+        setTimeout(() => resolve({ data: null, error: 'timeout' }), 4000)
+      );
+      const { data, error } = await Promise.race([rpcPromise, timeoutPromise]);
       if (!error && Array.isArray(data)) {
         const buyers = data.filter(p => p.account_type === 'buyer' || p.account_type === 'both').length;
         const sellersCount = data.filter(p => p.account_type === 'seller' || p.account_type === 'both').length;
@@ -67,7 +71,6 @@ export default function LocationPermission({
     } catch {
       /* fall through */
     }
-    // Fallback: empty list
     setNeighbors([]);
     setBreakdown({ buyers: 0, sellers: 0 });
     setNearbyCount(0);
@@ -76,8 +79,22 @@ export default function LocationPermission({
 
   const requestLocation = () => {
     setStatus('loading');
+    if (!navigator.geolocation) {
+      setStatus('denied');
+      return;
+    }
+    let settled = false;
+    const fallbackTimer = setTimeout(() => {
+      if (!settled) {
+        settled = true;
+        setStatus('denied');
+      }
+    }, 12000);
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(fallbackTimer);
         const { latitude, longitude } = pos.coords;
         onLocationGranted(latitude, longitude);
         setUserLoc({ lat: latitude, lng: longitude });
@@ -89,8 +106,13 @@ export default function LocationPermission({
         }
         setStatus('granted');
       },
-      () => setStatus('denied'),
-      { enableHighAccuracy: true }
+      () => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(fallbackTimer);
+        setStatus('denied');
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );
   };
 
