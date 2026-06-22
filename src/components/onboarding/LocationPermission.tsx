@@ -203,12 +203,16 @@ export default function LocationPermission({
     : "Share your location so we can show you local food makers in your area";
 
   const grantedHeading = mode === 'seller'
-    ? (nearbyCount > 0 ? `${nearbyCount} neighbors nearby!` : "You're the first one here!")
+    ? (neighborsLoading
+        ? 'Looking for neighbors…'
+        : (nearbyCount > 0 ? `${nearbyCount} neighbors nearby!` : "You're the first one here!"))
     : `${nearbyCount} sellers nearby!`;
   const grantedSub = mode === 'seller'
-    ? (nearbyCount > 0
-        ? `${breakdown.buyers} buyer${breakdown.buyers === 1 ? '' : 's'} · ${breakdown.sellers} seller${breakdown.sellers === 1 ? '' : 's'} within 25 miles`
-        : "Be the first to bring fresh food to your area. Invite friends to grow your community.")
+    ? (neighborsLoading
+        ? 'Scanning your area for buyers and sellers'
+        : (nearbyCount > 0
+          ? `${breakdown.buyers} buyer${breakdown.buyers === 1 ? '' : 's'} · ${breakdown.sellers} seller${breakdown.sellers === 1 ? '' : 's'} within 25 miles`
+          : "Be the first to bring fresh food to your area. Invite friends to grow your community."))
     : "Within 10 miles of you selling what you're looking for";
 
   return (
