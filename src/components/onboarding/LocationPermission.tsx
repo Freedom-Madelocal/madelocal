@@ -31,6 +31,7 @@ export default function LocationPermission({
   const [userLoc, setUserLoc] = useState<{ lat: number; lng: number } | null>(null);
   const [neighbors, setNeighbors] = useState<NearbyProfile[]>([]);
   const [breakdown, setBreakdown] = useState<{ buyers: number; sellers: number }>({ buyers: 0, sellers: 0 });
+  const [neighborsLoading, setNeighborsLoading] = useState(false);
   const { data: sellers } = useSellers(userLoc);
   const { data: categories } = useCategories();
 
