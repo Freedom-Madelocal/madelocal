@@ -21,8 +21,8 @@ const formatDistance = (d: number | null | undefined): string | null => {
 export function ListingCard({ row, distance, index = 0 }: Props) {
   const sellerName =
     row.public_profiles?.shop_name ||
-    row.public_profiles?.full_name?.split(" ")[0] ||
-    "Local Seller";
+    row.public_profiles?.full_name ||
+    "Seller";
   const avatar =
     row.public_profiles?.shop_avatar_url ||
     row.public_profiles?.avatar_url ||
