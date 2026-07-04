@@ -179,17 +179,17 @@ export function useSellerById(sellerId: string | undefined) {
 
       const typedListings = (listings ?? []) as unknown as Listing[];
 
-      // Try to get profile
+      // Fetch public seller info (anon-safe view)
       let profile: any = null;
       try {
-        const { data: profiles } = await supabase.from("profiles").select("*");
-        if (profiles) {
-          profile = (profiles as any[]).find(
-            (p) => p.id === sellerId || p.user_id === sellerId
-          );
-        }
+        const { data } = await supabase
+          .from("public_profiles")
+          .select("id,full_name,shop_name,avatar_url,shop_avatar_url,bio,venmo_link,contact_url,contact_phone")
+          .eq("id", sellerId!)
+          .maybeSingle();
+        profile = data;
       } catch {
-        // Profile unavailable
+        // Public profile unavailable
       }
 
       const firstImage = typedListings.find((l) => l.images?.length)?.images?.[0];
