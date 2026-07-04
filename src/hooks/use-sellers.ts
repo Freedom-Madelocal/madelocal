@@ -121,7 +121,7 @@ export function useSellers(
 
         results.push({
           id: sellerId,
-          name: profile?.shop_name || profile?.full_name || profile?.name || "Local Seller",
+          name: profile?.shop_name || profile?.full_name || profile?.name || "Seller",
           email: null,
           phone: null,
           bio: profile?.bio ?? null,
@@ -196,7 +196,7 @@ export function useSellerById(sellerId: string | undefined) {
 
       return {
         id: sellerId!,
-        name: profile?.shop_name || profile?.full_name || profile?.name || "Local Seller",
+        name: profile?.shop_name || profile?.full_name || profile?.name || "Seller",
         email: profile?.email ?? null,
         phone: profile?.contact_phone ?? profile?.phone ?? null,
         bio: profile?.bio ?? null,
