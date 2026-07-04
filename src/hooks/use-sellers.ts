@@ -85,21 +85,21 @@ export function useSellers(
         listingsBySeller.set(l.seller_id, existing);
       });
 
-      // Try to fetch profiles for enrichment (name, bio, avatar, venmo)
+      // Fetch public seller info (anon-safe view: name/shop only, no addresses)
       let profileMap = new Map<string, any>();
       try {
-        const { data: profiles } = await supabase.from("profiles").select("*");
+        const sellerIds = Array.from(listingsBySeller.keys());
+        const { data: profiles } = await supabase
+          .from("public_profiles")
+          .select("id,full_name,shop_name,avatar_url,shop_avatar_url,bio,venmo_link")
+          .in("id", sellerIds);
         if (profiles?.length) {
-          const sellerIds = new Set(listingsBySeller.keys());
           for (const p of profiles as any[]) {
-            const matchId = p.user_id || p.id;
-            if (sellerIds.has(matchId)) {
-              profileMap.set(matchId, p);
-            }
+            profileMap.set(p.id, p);
           }
         }
       } catch {
-        // Profiles unavailable, continue with listing-only data
+        // Public profiles unavailable, continue with listing-only data
       }
 
       const results: SellerWithListings[] = [];
@@ -179,17 +179,17 @@ export function useSellerById(sellerId: string | undefined) {
 
       const typedListings = (listings ?? []) as unknown as Listing[];
 
-      // Try to get profile
+      // Fetch public seller info (anon-safe view)
       let profile: any = null;
       try {
-        const { data: profiles } = await supabase.from("profiles").select("*");
-        if (profiles) {
-          profile = (profiles as any[]).find(
-            (p) => p.id === sellerId || p.user_id === sellerId
-          );
-        }
+        const { data } = await supabase
+          .from("public_profiles")
+          .select("id,full_name,shop_name,avatar_url,shop_avatar_url,bio,venmo_link,contact_url,contact_phone")
+          .eq("id", sellerId!)
+          .maybeSingle();
+        profile = data;
       } catch {
-        // Profile unavailable
+        // Public profile unavailable
       }
 
       const firstImage = typedListings.find((l) => l.images?.length)?.images?.[0];
