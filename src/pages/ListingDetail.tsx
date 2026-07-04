@@ -36,7 +36,7 @@ const ListingDetail = () => {
     );
   }
 
-  const sellerName = row.public_profiles?.shop_name || row.public_profiles?.full_name?.split(" ")[0] || "Local Seller";
+  const sellerName = row.public_profiles?.shop_name || row.public_profiles?.full_name || "Seller";
   const avatar = row.public_profiles?.shop_avatar_url || row.public_profiles?.avatar_url || "/placeholder.svg";
   const images = row.images && row.images.length ? row.images : ["/placeholder.svg"];
   const isLimited = row.listing_types?.inventory_type === "limited";
