@@ -36,7 +36,25 @@ export type MarketplaceListingRow = {
 };
 
 const SELECT =
-  "id,title,price,category,location,city,state,latitude,longitude,images,seller_id,description,stock_count,listing_type_id,egg_count,is_unclaimed,is_farmstand,listing_types(name,inventory_type),public_profiles(full_name,avatar_url,shop_name,shop_avatar_url,delivery_price,delivery_min_qty,delivery_max_radius,is_unclaimed,contact_url,contact_phone,marketplace_enabled)";
+  "id,title,price,category,location,city,state,latitude,longitude,images,seller_id,description,stock_count,listing_type_id,egg_count,is_unclaimed,is_farmstand,listing_types(name,inventory_type)";
+
+const PROFILE_COLS =
+  "id,full_name,avatar_url,shop_name,shop_avatar_url,delivery_price,delivery_min_qty,delivery_max_radius,is_unclaimed,contact_url,contact_phone,marketplace_enabled";
+
+async function attachProfiles<T extends { seller_id: string; public_profiles?: any }>(
+  rows: T[]
+): Promise<T[]> {
+  if (!rows.length) return rows;
+  const sellerIds = Array.from(new Set(rows.map((r) => r.seller_id).filter(Boolean)));
+  if (!sellerIds.length) return rows;
+  const { data: profiles } = await supabase
+    .from("public_profiles")
+    .select(PROFILE_COLS)
+    .in("id", sellerIds);
+  const map = new Map<string, any>();
+  for (const p of (profiles ?? []) as any[]) map.set(p.id, p);
+  return rows.map((r) => ({ ...r, public_profiles: map.get(r.seller_id) ?? null }));
+}
 
 export function useMarketplaceListings() {
   return useQuery({
@@ -48,7 +66,8 @@ export function useMarketplaceListings() {
         .eq("is_active", true)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as unknown as MarketplaceListingRow[];
+      const rows = (data ?? []) as unknown as MarketplaceListingRow[];
+      return await attachProfiles(rows);
     },
     staleTime: 2 * 60 * 1000,
   });
@@ -67,7 +86,8 @@ export function useMarketplaceListing(id?: string) {
         .maybeSingle();
       if (error) throw error;
       if (!data || (data as any).is_active !== true) return null;
-      return data as unknown as MarketplaceListingRow;
+      const [row] = await attachProfiles([data as unknown as MarketplaceListingRow]);
+      return row;
     },
   });
 }
